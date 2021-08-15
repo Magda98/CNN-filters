@@ -15,5 +15,5 @@ class Data:
             20, 10, 3, 32, 32).astype("uint8")
         self.labels = data_dict['labels'.encode()]
         self.labels = self.labels[:50]
-        self.images = torch.tensor(self.images)
+        self.images = torch.tensor(self.images,  dtype=torch.float32)
         self.labels = torch.tensor(self.labels)
