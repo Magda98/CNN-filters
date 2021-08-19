@@ -4,23 +4,34 @@ from cnn import cnnNet
 import torch.nn as nn
 
 
+def weights_init(m):
+    with torch.no_grad():
+        if isinstance(m, nn.Conv2d):
+            torch.nn.init.xavier_uniform_(m.weight)
+            torch.nn.init.normal_(m.bias)
+
+
 if __name__ == "__main__":
 
     torch.cuda.empty_cache()
 
     dataset = Data()
 
-    net = cnnNet()
+    cnn_model = cnnNet()
+    cnn_model.apply(weights_init)
+    # cnn_model = cnn_model.cuda
 
     criterion = nn.CrossEntropyLoss()
 
     lr = 0.05
 
-    optimizer = torch.optim.SGD(net.parameters(), lr=lr)
+    # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
+
+    optimizer = torch.optim.Adam(cnn_model.parameters(), lr=0.0001)
     for epoch in range(200):
         for (labels, x) in zip(dataset.labels, dataset.images):
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
-            out = net(x)
+            out = cnn_model(x)
 
             loss = criterion(out, labels)
             loss.backward()
