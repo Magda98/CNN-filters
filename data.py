@@ -1,5 +1,6 @@
 import pickle
 import torch
+import numpy as np
 
 
 class Data:
@@ -11,9 +12,9 @@ class Data:
         self.labels = data_dict['labels'.encode()]
         self.filenames = data_dict['filenames'.encode()]
         self.images = data_dict['data'.encode()]
-        self.images = self.images[:200].reshape(
-            20, 10, 3, 32, 32).astype("uint8")
-        self.labels = data_dict['labels'.encode()]
-        self.labels = self.labels[:50]
+        self.images = self.images.reshape(
+            20, 500, 3, 32, 32).astype("uint8")
+        self.labels = np.array(data_dict['labels'.encode()])
+        self.labels = self.labels.reshape(20, 500)
         self.images = torch.tensor(self.images,  dtype=torch.float32)
-        self.labels = torch.tensor(self.labels)
+        self.labels = torch.tensor(self.labels, dtype=torch.int64)
