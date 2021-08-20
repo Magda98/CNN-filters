@@ -2,21 +2,26 @@ import torch
 from data import Data
 from cnn import cnnNet
 import torch.nn as nn
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 
-def weights_init(m):
+def weights_init(m, method):
     with torch.no_grad():
         if isinstance(m, nn.Conv2d):
-            torch.nn.init.orthogonal_(m.weight)
             torch.nn.init.normal_(m.bias)
 
+            if method == 'orthogonal':
+                torch.nn.init.orthogonal_(m.weight)
+            elif method == 'kaiming_uniform':
+                torch.nn.init.kaiming_uniform_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')
+            elif method == 'xavier_uniform':
+                torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
+            elif method == 'xavier_normal':
+                torch.nn.init.xavier_normal_(m.weight, gain=1.0)
 
-def training(dataset):
 
+def training(dataset, epoch, method):
     cnn_model = cnnNet()
-    cnn_model.apply(weights_init)
+    cnn_model.apply(lambda m: weights_init(m, method))
 
     criterion = nn.CrossEntropyLoss()
 
@@ -40,7 +45,7 @@ def training(dataset):
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr=lr)
 
     lsse = []
-    for epoch in range(200):
+    for e in epoch:
 
         loss_array = []
         old_param = cnn_model.parameters
@@ -72,5 +77,7 @@ def training(dataset):
         # %%
 
         print("learning rate:", optimizer.param_groups[0]['lr'])
-        print('Epoch: {}.............'.format(epoch), end=' ')
+        print('Epoch: {}.............'.format(e), end=' ')
         print("Loss: {:.4f}".format(loss))
+
+    return lsse
