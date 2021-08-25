@@ -2,6 +2,17 @@ import torch
 from data import Data
 from cnn import cnnNet
 import torch.nn as nn
+import matplotlib.pyplot as plt
+import numpy as np
+import torchvision
+
+def imshow(img):
+    npimg = img.detach().cpu().numpy()
+    plt.imshow(npimg)
+    plt.grid(b=None)
+    plt.draw()
+    plt.pause(1e-17)
+    plt.clf()
 
 
 def weights_init(m, method):
@@ -58,6 +69,9 @@ def training(dataset, epoch, method):
             optimizer.step()
             loss_array.append(loss.item())
 
+
+
+        imshow(cnn_model.conv2.weight.data[0, 0].detach())
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)
