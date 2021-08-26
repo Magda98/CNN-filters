@@ -24,7 +24,7 @@ def imshow(conv1, conv2):
     n=1
     for i,c in enumerate(conv1):
         for j,npimg in enumerate(c):
-            plt.subplot(12, 12, n)
+            plt.subplot(5,5 , n)
             plt.imshow(npimg)
             plt.grid(b=None)
             plt.axis('off')
