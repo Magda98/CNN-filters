@@ -22,11 +22,9 @@ def imshow(conv1, conv2):
     # plt.clf()
     # plt.figure()
     n=1
-    for i,c in enumerate(conv2):
+    for i,c in enumerate(conv1):
         for j,npimg in enumerate(c):
-            if n == 37:
-                break;
-            plt.subplot(6, 6, n)
+            plt.subplot(12, 12, n)
             plt.imshow(npimg)
             plt.grid(b=None)
             plt.axis('off')
