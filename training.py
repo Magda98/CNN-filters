@@ -6,10 +6,33 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
 
-def imshow(img):
-    npimg = img.detach().cpu().numpy()
-    plt.imshow(npimg)
-    plt.grid(b=None)
+def imshow(conv1, conv2):
+    # n = 1
+
+    # for i,c in enumerate(conv1):
+    #     for j,npimg in enumerate(c):
+    #         plt.subplot(6, 6, n)
+    #         plt.imshow(npimg)
+    #         plt.grid(b=None)
+    #         plt.axis('off')
+    #         n+=1
+
+    # plt.draw()
+    # plt.pause(1e-17)
+    # plt.clf()
+    # plt.figure()
+    n=1
+    for i,c in enumerate(conv2):
+        for j,npimg in enumerate(c):
+            if n == 37:
+                break;
+            plt.subplot(6, 6, n)
+            plt.imshow(npimg)
+            plt.grid(b=None)
+            plt.axis('off')
+            n+=1
+
+            
     plt.draw()
     plt.pause(1e-17)
     plt.clf()
@@ -70,8 +93,8 @@ def training(dataset, epoch, method):
             loss_array.append(loss.item())
 
 
-
-        imshow(cnn_model.conv2.weight.data[0, 0].detach())
+        if e %10 == 0:
+            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy())
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)
