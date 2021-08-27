@@ -21,16 +21,20 @@ def imshow(conv1, conv2):
     # plt.pause(1e-17)
     # plt.clf()
     # plt.figure()
-    n=1
-    for i,c in enumerate(conv1):
-        for j,npimg in enumerate(c):
-            plt.subplot(5,5 , n)
-            plt.imshow(npimg)
-            plt.grid(b=None)
-            plt.axis('off')
-            n+=1
+    # n=1
+    # for i,c in enumerate(conv1):
+    #     for j,npimg in enumerate(c):
+    #         plt.subplot(5,5 , n)
+    #         plt.imshow(npimg)
+    #         plt.grid(b=None)
+    #         plt.axis('off')
+    #         n+=1
 
-            
+    npimg = conv2[0, 0]
+    npimg = npimg/(npimg.max()-npimg.min())
+    plt.imshow(npimg)
+    plt.axis('off')
+    plt.grid(b=None)       
     plt.draw()
     plt.pause(1e-17)
     plt.clf()
@@ -66,8 +70,8 @@ def training(dataset, epoch, method):
     is_cuda = torch.cuda.is_available()
     if is_cuda:
         cnn_model = cnn_model.cuda()
-        dataset.images = dataset.images.cuda()
-        dataset.labels = dataset.labels.cuda()
+        # dataset.images = dataset.images.cuda()
+        # dataset.labels = dataset.labels.cuda()
         print("GPU is available")
     else:
         device = torch.device("cpu")
@@ -81,7 +85,10 @@ def training(dataset, epoch, method):
 
         loss_array = []
         old_param = cnn_model.parameters
-        for (labels, data) in zip(dataset.labels, dataset.images):
+        # for (labels, data) in zip(dataset.labels, dataset.images):
+        for data, labels in dataset:
+            labels = labels.cuda()
+            data = data.cuda()
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
             out = cnn_model(data)
 

@@ -10,15 +10,15 @@ class cnnNet(nn.Module):
         CNN module
         """
         super().__init__()
-        size_out = 32
+        size_out = 150
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=6,  kernel_size=11)
         
         size_out = math.floor((size_out +2*0 - 1*(11-1) -1)/1 +1)
         self.pool1 = nn.MaxPool2d(kernel_size=2,  stride=2)
         size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
 
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=3)
-        size_out = math.floor((size_out +2*0 - 1*(3-1) -1)/1 +1)
+        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=23)
+        size_out = math.floor((size_out +2*0 - 1*(23-1) -1)/1 +1)
 
         self.pool2 = nn.MaxPool2d(kernel_size=2,  stride=2)
         size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
