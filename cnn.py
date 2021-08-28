@@ -17,8 +17,8 @@ class cnnNet(nn.Module):
         self.pool1 = nn.MaxPool2d(kernel_size=2,  stride=2)
         size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
 
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=23)
-        size_out = math.floor((size_out +2*0 - 1*(23-1) -1)/1 +1)
+        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
+        size_out = math.floor((size_out +2*0 - 1*(5-1) -1)/1 +1)
 
         self.pool2 = nn.MaxPool2d(kernel_size=2,  stride=2)
         size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
@@ -29,9 +29,11 @@ class cnnNet(nn.Module):
 
     def forward(self, x):
         x = self.pool1(F.relu(self.conv1(x)))
+        test = x
+
         x = self.pool2(F.relu(self.conv2(x)))
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
-        return x
+        return x, test

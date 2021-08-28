@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
 
-def imshow(conv1, conv2):
+def imshow(conv1, conv2, features_map, image):
     # n = 1
 
     # for i,c in enumerate(conv1):
@@ -25,19 +25,34 @@ def imshow(conv1, conv2):
     # for i,c in enumerate(conv1):
     #     for j,npimg in enumerate(c):
     #         plt.subplot(5,5 , n)
-    #         plt.imshow(npimg)
+    #         plt.imshow(npimg, cmap="gray")
     #         plt.grid(b=None)
     #         plt.axis('off')
     #         n+=1
+    # plt.figure()
 
-    npimg = conv2[0, 0]
-    npimg = npimg/(npimg.max()-npimg.min())
-    plt.imshow(npimg)
+    plt.subplot(3,1,1)
+
+    image =   np.transpose(image, (1, 2, 0))
+    plt.imshow(image)
+    plt.axis('off')
+    plt.grid(b=None) 
+
+    plt.subplot(3,1,2)
+    npimg = conv1[0, 0]
+    plt.imshow(npimg, cmap="gray")
+    plt.axis('off')
+    plt.grid(b=None)    
+
+    plt.subplot(3,1,3)
+    # plt.figure()
+    npimg = features_map[0, 0]
+    plt.imshow(npimg, cmap="gray")
     plt.axis('off')
     plt.grid(b=None)       
-    plt.draw()
-    plt.pause(1e-17)
-    plt.clf()
+    # plt.draw()
+    # plt.pause(1e-17)
+    # plt.clf()
 
 
 def weights_init(m, method):
@@ -88,9 +103,10 @@ def training(dataset, epoch, method):
         # for (labels, data) in zip(dataset.labels, dataset.images):
         for data, labels in dataset:
             labels = labels.cuda()
+            image = data[0].detach().numpy()
             data = data.cuda()
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
-            out = cnn_model(data)
+            out, test = cnn_model(data)
 
             loss = criterion(out, labels)
             loss.backward()
@@ -99,7 +115,7 @@ def training(dataset, epoch, method):
 
 
         if e %10 == 0:
-            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy())
+            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), test.detach().cpu().numpy(), image)
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)
