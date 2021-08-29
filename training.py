@@ -31,25 +31,30 @@ def imshow(conv1, conv2, features_map, image):
     #         n+=1
     # plt.figure()
 
-    plt.subplot(3,1,1)
-
+    plt.subplot(5,6, 3)
     image =   np.transpose(image, (1, 2, 0))
     plt.imshow(image)
     plt.axis('off')
     plt.grid(b=None) 
 
-    plt.subplot(3,1,2)
-    npimg = conv1[0, 0]
-    plt.imshow(npimg, cmap="gray")
-    plt.axis('off')
-    plt.grid(b=None)    
+    n = 7
+    for f in conv1:
+        for c in f:
+            plt.subplot(5,6,n)
+            n+=1
+            npimg =  c
+            plt.imshow(npimg, cmap="gray")
+            plt.axis('off')
+            plt.grid(b=None)    
 
-    plt.subplot(3,1,3)
-    # plt.figure()
-    npimg = features_map[0, 0]
-    plt.imshow(npimg, cmap="gray")
-    plt.axis('off')
-    plt.grid(b=None)       
+    n = 25
+    for f in features_map[0]:
+        plt.subplot(5,6,n)
+        n+=1
+        npimg = f
+        plt.imshow(npimg, cmap="gray")
+        plt.axis('off')
+        plt.grid(b=None)       
     # plt.draw()
     # plt.pause(1e-17)
     # plt.clf()
@@ -114,7 +119,7 @@ def training(dataset, epoch, method):
             loss_array.append(loss.item())
 
 
-        if e %10 == 0:
+        if e %20 == 0:
             imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), test.detach().cpu().numpy(), image)
         # %%
         # Adaptive learning rate
