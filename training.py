@@ -6,6 +6,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torchvision
 
+
+
+def valid_classification(out, d):
+    """
+    funkcja sprawdzająca poprawność klasyfikacji dla danych
+    :param out: wyjście sieci
+    :param d: wartość oczekiwana
+    :return: poprawność klasyfikacji wyrażona w %
+    """
+    out = out.cpu().detach().numpy()
+    d = d.cpu().detach().numpy()
+    x = abs(d - out)
+    valid = sum(i < 0.5 for i in x)
+    percent = valid / x.shape[0] * 100
+    return percent
+
 def imshow(conv1, conv2, features_map, image):
     # n = 1
 
@@ -75,12 +91,11 @@ def weights_init(m, method):
                 torch.nn.init.xavier_normal_(m.weight, gain=1.0)
 
 
-def training(dataset, epoch, method):
+def training(dataset, epoch, method, test):
     cnn_model = cnnNet()
     cnn_model.apply(lambda m: weights_init(m, method))
 
-    criterion = nn.CrossEntropyLoss()
-
+    criterion = nn.NLLLoss()
     lr = 0.0001
     er = 1.04
     lr_inc = 1.04
@@ -108,10 +123,9 @@ def training(dataset, epoch, method):
         # for (labels, data) in zip(dataset.labels, dataset.images):
         for data, labels in dataset:
             labels = labels.cuda()
-            image = data[0].detach().numpy()
             data = data.cuda()
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
-            out, test = cnn_model(data)
+            out, x = cnn_model(data)
 
             loss = criterion(out, labels)
             loss.backward()
@@ -120,7 +134,24 @@ def training(dataset, epoch, method):
 
 
         if e %20 == 0:
-            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), test.detach().cpu().numpy(), image)
+            loss_test = 0
+            pk=[]
+            with torch.no_grad():
+                for data, labels in test:
+                    labels = labels.cuda()
+                    data = data.cuda()
+                    out, x = cnn_model(data)
+                    output = torch.argmax(out, dim=1)
+                    loss = criterion(out, labels)
+                    loss_test += loss.cpu().item()
+                    pk.append(valid_classification(output, labels))
+
+
+
+            image = data[0].detach().cpu().numpy()
+            pk = np.average(pk)
+            print("pk: {} %".format(pk))
+            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), x.detach().cpu().numpy(), image)
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)

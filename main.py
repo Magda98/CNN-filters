@@ -14,15 +14,15 @@ if __name__ == "__main__":
     sns.set()
     torch.cuda.empty_cache()
 
-    (data, x, z) =  intel_data()
+    (data, x, test) =  intel_data()
 
     # data = Data()
-    data = data
+    # data = data
     # data.cuda()
     epoch = list(range(200))
     methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal']
     for method in methods:
-        sse = training(dataset=data, epoch=epoch, method=method)
+        sse = training(dataset=data, test = test ,epoch=epoch, method=method)
         plt.plot(epoch, sse, label=method)
 
     plt.xlabel("Epoch")

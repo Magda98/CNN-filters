@@ -35,5 +35,6 @@ class cnnNet(nn.Module):
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)
+        m = torch.nn.LogSoftmax(dim=1)
+        x = m(self.fc3(x))
         return x, test
