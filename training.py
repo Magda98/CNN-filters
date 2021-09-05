@@ -23,30 +23,6 @@ def valid_classification(out, d):
     return percent
 
 def imshow(conv1, conv2, features_map, image):
-    # n = 1
-
-    # for i,c in enumerate(conv1):
-    #     for j,npimg in enumerate(c):
-    #         plt.subplot(6, 6, n)
-    #         plt.imshow(npimg)
-    #         plt.grid(b=None)
-    #         plt.axis('off')
-    #         n+=1
-
-    # plt.draw()
-    # plt.pause(1e-17)
-    # plt.clf()
-    # plt.figure()
-    # n=1
-    # for i,c in enumerate(conv1):
-    #     for j,npimg in enumerate(c):
-    #         plt.subplot(5,5 , n)
-    #         plt.imshow(npimg, cmap="gray")
-    #         plt.grid(b=None)
-    #         plt.axis('off')
-    #         n+=1
-    # plt.figure()
-
     plt.subplot(5,6, 3)
     image =   np.transpose(image, (1, 2, 0))
     plt.imshow(image)
@@ -102,6 +78,9 @@ def training(dataset, epoch, method, test):
     lr_desc = 0.7
     old_sse = 0
 
+    pk_test = []
+    loss_test = []
+
     is_cuda = torch.cuda.is_available()
     if is_cuda:
         cnn_model = cnn_model.cuda()
@@ -133,8 +112,10 @@ def training(dataset, epoch, method, test):
             loss_array.append(loss.item())
 
 
-        if e %20 == 0:
-            loss_test = 0
+        # %%
+        # Test
+        if e %1 == 0:
+            loss_t = 0
             pk=[]
             with torch.no_grad():
                 for data, labels in test:
@@ -143,15 +124,18 @@ def training(dataset, epoch, method, test):
                     out, x = cnn_model(data)
                     output = torch.argmax(out, dim=1)
                     loss = criterion(out, labels)
-                    loss_test += loss.cpu().item()
+                    loss_t+= loss.cpu().item()
                     pk.append(valid_classification(output, labels))
 
 
-
+            loss_test.append(loss_t)
             image = data[0].detach().cpu().numpy()
             pk = np.average(pk)
+            pk_test.append(pk)
             print("pk: {} %".format(pk))
             imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), x.detach().cpu().numpy(), image)
+        # %%
+
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)
@@ -174,4 +158,4 @@ def training(dataset, epoch, method, test):
         print('Epoch: {}.............'.format(e), end=' ')
         print("Loss: {:.4f}".format(loss))
 
-    return lsse
+    return lsse, pk_test

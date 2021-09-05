@@ -19,11 +19,15 @@ if __name__ == "__main__":
     # data = Data()
     # data = data
     # data.cuda()
-    epoch = list(range(200))
+    epoch = list(range(5))
     methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal']
-    for method in methods:
-        sse = training(dataset=data, test = test ,epoch=epoch, method=method)
-        plt.plot(epoch, sse, label=method)
+    # for method in methods:
+    #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
+    #     plt.plot(epoch, sse, label=method)
+
+    sse, pk = training(dataset=data, test = test ,epoch=epoch, method='xavier_uniform')
+    plt.figure()
+    plt.plot(epoch, sse, label='xavier_uniform')
 
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
