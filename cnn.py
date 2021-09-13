@@ -5,36 +5,33 @@ import math
 
 
 class cnnNet(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, c_kernels = [7, 5], out_channels =[6, 16], in_channels = [3,6], p_kernel=[2,2], p_stride = [2,2]):
         """
         CNN module
         """
         super().__init__()
-        size_out = 150
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=6,  kernel_size=33)
-        
-        size_out = math.floor((size_out +2*0 - 1*(33-1) -1)/1 +1)
-        self.pool1 = nn.MaxPool2d(kernel_size=2,  stride=2)
-        size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
+        self.cnn = nn.ModuleList()
+        size_out = input_size
 
-        self.conv2 = nn.Conv2d(in_channels=6, out_channels=16, kernel_size=5)
-        size_out = math.floor((size_out +2*0 - 1*(5-1) -1)/1 +1)
-
-        self.pool2 = nn.MaxPool2d(kernel_size=2,  stride=2)
-        size_out = math.floor((size_out +2*0 - 1*(2-1) -1)/2 +1)
+        for k,c_in,c_out,p,s in zip(c_kernels, in_channels, out_channels, p_kernel, p_stride):
+            self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k))
+            size_out = math.floor((size_out +2*0 - 1*(k-1) -1)/1 +1)
+            self.cnn.append(nn.MaxPool2d(kernel_size=p,  stride=s))
+            size_out = math.floor((size_out +2*0 - 1*(p-1) -1)/s +1)
 
         self.fc1 = nn.Linear(size_out*size_out* 16, 84)
         self.fc2 = nn.Linear(84, 16)
         self.fc3 = nn.Linear(16, 6)
 
-    def forward(self, x):
-        x = self.pool1(F.relu(self.conv1(x)))
-        test = x
+    def forward(self, inp):
+        out = self.cnn[1](F.relu(self.cnn[0](inp)))
+        sample = out
 
-        x = self.pool2(F.relu(self.conv2(x)))
-        x = torch.flatten(x, 1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        out = self.cnn[3](F.relu(self.cnn[2](out)))
+
+        out = torch.flatten(out, 1)
+        out = F.relu(self.fc1(out))
+        out = F.relu(self.fc2(out))
         m = torch.nn.LogSoftmax(dim=1)
-        x = m(self.fc3(x))
-        return x, test
+        out = m(self.fc3(out))
+        return out, sample

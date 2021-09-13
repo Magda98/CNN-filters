@@ -47,9 +47,9 @@ def imshow(conv1, conv2, features_map, image):
         plt.imshow(npimg, cmap="gray")
         plt.axis('off')
         plt.grid(b=None)       
-    # plt.draw()
-    # plt.pause(1e-17)
-    # plt.clf()
+    plt.draw()
+    plt.pause(1e-17)
+    plt.clf()
 
 
 def weights_init(m, method):
@@ -67,8 +67,11 @@ def weights_init(m, method):
                 torch.nn.init.xavier_normal_(m.weight, gain=1.0)
 
 
-def training(dataset, epoch, method, test):
-    cnn_model = cnnNet()
+def training(dataset, epoch, method, test, input_size):
+
+    cnn_model = cnnNet(input_size, c_kernels = [33, 5], out_channels =[6, 16], in_channels = [3,6], p_kernel=[2,2], p_stride = [2,2])
+    
+    # weight initialization
     cnn_model.apply(lambda m: weights_init(m, method))
 
     criterion = nn.NLLLoss()
@@ -84,6 +87,8 @@ def training(dataset, epoch, method, test):
     is_cuda = torch.cuda.is_available()
     if is_cuda:
         cnn_model = cnn_model.cuda()
+        cnn_model.cnn = cnn_model.cnn.cuda()
+
         # dataset.images = dataset.images.cuda()
         # dataset.labels = dataset.labels.cuda()
         print("GPU is available")
@@ -104,7 +109,7 @@ def training(dataset, epoch, method, test):
             labels = labels.cuda()
             data = data.cuda()
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
-            out, x = cnn_model(data)
+            out, sample = cnn_model(data)
 
             loss = criterion(out, labels)
             loss.backward()
@@ -114,14 +119,14 @@ def training(dataset, epoch, method, test):
 
         # %%
         # Test
-        if e %1 == 0:
+        if e %50 == 0:
             loss_t = 0
             pk=[]
             with torch.no_grad():
                 for data, labels in test:
                     labels = labels.cuda()
                     data = data.cuda()
-                    out, x = cnn_model(data)
+                    out, sample = cnn_model(data)
                     output = torch.argmax(out, dim=1)
                     loss = criterion(out, labels)
                     loss_t+= loss.cpu().item()
@@ -133,7 +138,7 @@ def training(dataset, epoch, method, test):
             pk = np.average(pk)
             pk_test.append(pk)
             print("pk: {} %".format(pk))
-            imshow(cnn_model.conv1.weight.data.detach().cpu().numpy(), cnn_model.conv2.weight.data.detach().cpu().numpy(), x.detach().cpu().numpy(), image)
+            imshow(cnn_model.cnn[0].weight.data.detach().cpu().numpy(), cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample.detach().cpu().numpy(), image)
         # %%
 
         # %%

@@ -12,7 +12,7 @@ def intel_data():
     num_workers = 0
 
     # Number of samples per batch to load
-    batch_size = 32
+    batch_size = 100
 
     # Percentage of training set to use for validation
     valid_size = 0.2
