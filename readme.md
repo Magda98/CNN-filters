@@ -23,5 +23,14 @@ Dataset contain 25k images of size 150px x 150px. Dataset has 6 classes:
 Convolutional neural network has fallowing structure: `Conv2d -> ReLu -> maxPool2d -> Conv2d -> ReLu -> maxPool2d -> fc1 -> fc2 -> fc3`
 
 Purpose of this work is to find the most efficient way to train a neural network to get the best correctness of classification.
-Experiments will be conducted to find the best parameters such as filters size, filters quanitity.
+Several experiments will be conducted to find the best parameters such as filters size and filters quanitity.
 There will be also examinated influence of kernels initialization to correctness of classification.
+
+## ToDo
+
+<ol>
+<li>1. crossvalidation</li>
+<li>2. fix visualization</li>
+<li>3. add custom filters initialization</li>
+<li>4. code refactor and comments</li>
+</ol>
