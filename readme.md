@@ -29,8 +29,8 @@ There will be also examinated influence of kernels initialization to correctness
 ## ToDo
 
 <ol>
-<li>1. crossvalidation</li>
-<li>2. fix visualization</li>
-<li>3. add custom filters initialization</li>
-<li>4. code refactor and comments</li>
+<li>crossvalidation</li>
+<li>fix visualization</li>
+<li>add custom filters initialization</li>
+<li>code refactor and comments</li>
 </ol>
