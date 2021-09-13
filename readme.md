@@ -9,7 +9,8 @@ https://www.kaggle.com/puneet6060/intel-image-classification
 Dataset contain 25k images of size 150px x 150px. Dataset has 6 classes:
 
 ```
-{'buildings' -> 0,
+{
+'buildings' -> 0,
 'forest' -> 1,
 'glacier' -> 2,
 'mountain' -> 3,
