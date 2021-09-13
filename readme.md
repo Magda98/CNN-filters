@@ -27,6 +27,16 @@ Purpose of this work is to find the most efficient way to train a neural network
 Several experiments will be conducted to find the best parameters such as filters size and filters quanitity.
 There will be also examinated influence of kernels initialization to correctness of classification.
 
+How to calculate Conv2d out size and MaxPool2d out size:
+
+Conv2d:
+
+![image info](./doc/conv2d_out.png)
+
+MaxPool2d:
+
+![image info](./doc/maxpool2d_out.png)
+
 ## ToDo
 
 <ol>
