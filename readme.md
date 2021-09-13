@@ -1,4 +1,4 @@
-# Filters vizualization in Convolutiona network during training
+# Filters vizualization in CNN
 
 ## Dataset
 
