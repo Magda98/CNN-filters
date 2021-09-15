@@ -8,6 +8,11 @@ import numpy as np
 
 
 def intel_data():
+    """
+    Dataloader
+    TODO: refactor, add cross-validation
+    """
+    
     # Number of subprocesses to use for data loading
     num_workers = 0
 
