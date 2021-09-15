@@ -4,25 +4,29 @@ from cnn import cnnNet
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import numpy as np
-import torchvision
 
 
 
 def valid_classification(out, d):
     """
-    funkcja sprawdzająca poprawność klasyfikacji dla danych
-    :param out: wyjście sieci
-    :param d: wartość oczekiwana
-    :return: poprawność klasyfikacji wyrażona w %
+    Function calculating valid classification
+    @ out - netowerk output
+    @ d - destination value
+    return: classification correctness in %
     """
     out = out.cpu().detach().numpy()
     d = d.cpu().detach().numpy()
     x = abs(d - out)
     valid = sum(i < 0.5 for i in x)
-    percent = valid / x.shape[0] * 100
-    return percent
+    return valid / x.shape[0] * 100
 
 def imshow(conv1, conv2, features_map, image):
+    """
+    Function plotting images
+    @ conv1, conv2 - filters from each conv layer
+    @ features_map - each images after passing it through layer
+    @ image - image given at input 
+    """
     plt.subplot(5,6, 3)
     image =   np.transpose(image, (1, 2, 0))
     plt.imshow(image)
@@ -53,6 +57,13 @@ def imshow(conv1, conv2, features_map, image):
 
 
 def weights_init(m, method):
+    """
+    Function for filters initialization
+    * function uses method from PyTorch to initialize weights
+    @ m - model
+    @ method - method to initialize weights
+    TODO: add custom method to initialize weights
+    """
     with torch.no_grad():
         if isinstance(m, nn.Conv2d):
             torch.nn.init.normal_(m.bias)
@@ -68,9 +79,16 @@ def weights_init(m, method):
 
 
 def training(dataset, epoch, method, test, input_size):
-
+    """
+    Main function of training a model
+    @ dataset - dataset loader object
+    @ epoch - iterator object
+    @ method - methos for weights initialization
+    @ test - data for testing
+    @ input_size - size of image
+    TODO: refactor code, move ALR to function
+    """
     cnn_model = cnnNet(input_size, c_kernels = [33, 5], out_channels =[6, 16], in_channels = [3,6], p_kernel=[2,2], p_stride = [2,2])
-    
     # weight initialization
     cnn_model.apply(lambda m: weights_init(m, method))
 
@@ -88,7 +106,6 @@ def training(dataset, epoch, method, test, input_size):
     if is_cuda:
         cnn_model = cnn_model.cuda()
         cnn_model.cnn = cnn_model.cnn.cuda()
-
         # dataset.images = dataset.images.cuda()
         # dataset.labels = dataset.labels.cuda()
         print("GPU is available")
@@ -99,7 +116,7 @@ def training(dataset, epoch, method, test, input_size):
     # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr=lr)
 
-    lsse = []
+    sse_array = []
     for e in epoch:
 
         loss_array = []
@@ -144,7 +161,7 @@ def training(dataset, epoch, method, test, input_size):
         # %%
         # Adaptive learning rate
         sse = sum(loss_array)
-        lsse.append(sse)
+        sse_array.append(sse)
         lr = optimizer.param_groups[0]['lr']
         if sse > old_sse * er:
             # get old weights and bias
@@ -163,4 +180,4 @@ def training(dataset, epoch, method, test, input_size):
         print('Epoch: {}.............'.format(e), end=' ')
         print("Loss: {:.4f}".format(loss))
 
-    return lsse, pk_test
+    return sse_array, pk_test

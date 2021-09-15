@@ -5,9 +5,16 @@ import math
 
 
 class cnnNet(nn.Module):
-    def __init__(self, input_size, c_kernels = [7, 5], out_channels =[6, 16], in_channels = [3,6], p_kernel=[2,2], p_stride = [2,2]):
+    def __init__(self, input_size, c_kernels = [7, 5], in_channels = [3,6], out_channels =[6, 16], p_kernel=[2,2], p_stride = [2,2]):
         """
-        CNN module
+        CNN class
+        * Architecture: Conv2d -> ReLu -> maxPool2d -> Conv2d -> ReLu -> maxPool2d -> fc1 -> fc2 -> fc3
+        @ input_size - size of input image
+        @ c_kernels - size of kernel in each conv2d layer
+        @ in_channels, out_channels - define channels in each conv2d layer
+        @ p_kernel - size od kernel in each maxPool2d layer
+        @ p_stride - size of strine in maxPool2d layer
+        TODO: better way to get sample in forward function
         """
         super().__init__()
         self.cnn = nn.ModuleList()
