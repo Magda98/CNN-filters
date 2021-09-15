@@ -39,9 +39,7 @@ MaxPool2d:
 
 ## ToDo
 
-<ol>
-<li>crossvalidation</li>
-<li>fix visualization</li>
-<li>add custom filters initialization</li>
-<li>code refactor and comments</li>
-</ol>
+- [ ] crossvalidation
+- [ ] fix visualization
+- [ ] add custom filters initialization
+- [x] code refactor and comments
