@@ -122,7 +122,7 @@ def training(dataset, epoch, method, test, input_size):
         loss_array = []
         old_param = cnn_model.parameters
         # for (labels, data) in zip(dataset.labels, dataset.images):
-        for data, labels in dataset:
+        for data, labels in dataset.trainloader:
             labels = labels.cuda()
             data = data.cuda()
             optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
