@@ -78,7 +78,7 @@ def weights_init(m, method):
                 torch.nn.init.xavier_normal_(m.weight, gain=1.0)
 
 
-def training(dataset, epoch, method, test, input_size):
+def training(dataset, epoch, method, input_size):
     """
     Main function of training a model
     @ dataset - dataset loader object
@@ -140,7 +140,7 @@ def training(dataset, epoch, method, test, input_size):
             loss_t = 0
             pk=[]
             with torch.no_grad():
-                for data, labels in test:
+                for data, labels in dataset.validloader:
                     labels = labels.cuda()
                     data = data.cuda()
                     out, sample = cnn_model(data)
@@ -179,5 +179,8 @@ def training(dataset, epoch, method, test, input_size):
         print("learning rate:", optimizer.param_groups[0]['lr'])
         print('Epoch: {}.............'.format(e), end=' ')
         print("Loss: {:.4f}".format(loss))
+        
+        data.getChunks()
 
+    print(np.average(pk_test))
     return sse_array, pk_test

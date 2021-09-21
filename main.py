@@ -26,7 +26,7 @@ if __name__ == "__main__":
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
 
-    sse, pk = training(dataset=data, test = data.validloader ,epoch=epoch, method='xavier_uniform', input_size = input_size)
+    sse, pk = training(dataset=data, epoch=epoch, method='xavier_uniform', input_size = input_size)
     plt.figure()
     plt.plot(epoch, sse, label='xavier_uniform')
 
