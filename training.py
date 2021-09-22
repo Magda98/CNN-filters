@@ -88,7 +88,7 @@ def training(dataset, epoch, method, input_size):
     @ input_size - size of image
     TODO: refactor code, move ALR to function
     """
-    cnn_model = cnnNet(input_size, c_kernels = [33, 5], out_channels =[6, 16], in_channels = [3,6], p_kernel=[2,2], p_stride = [2,2])
+    cnn_model = cnnNet(input_size, c_kernels = [7, 5], out_channels =[30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2])
     # weight initialization
     cnn_model.apply(lambda m: weights_init(m, method))
 
@@ -115,28 +115,28 @@ def training(dataset, epoch, method, input_size):
 
     # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
     optimizer = torch.optim.Adam(cnn_model.parameters(), lr=lr)
-
+    pk_flag = True
     sse_array = []
     for e in epoch:
+        while pk_flag:
+            loss_array = []
+            old_param = cnn_model.parameters
+            # for (labels, data) in zip(dataset.labels, dataset.images):
+            for data, labels in dataset.trainloader:
+                labels = labels.cuda()
+                data = data.cuda()
+                optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
+                out, sample = cnn_model(data)
 
-        loss_array = []
-        old_param = cnn_model.parameters
-        # for (labels, data) in zip(dataset.labels, dataset.images):
-        for data, labels in dataset.trainloader:
-            labels = labels.cuda()
-            data = data.cuda()
-            optimizer.zero_grad()  # Wyczyszczenie gradientów z poprzedniej epoki
-            out, sample = cnn_model(data)
-
-            loss = criterion(out, labels)
-            loss.backward()
-            optimizer.step()
-            loss_array.append(loss.item())
+                loss = criterion(out, labels)
+                loss.backward()
+                optimizer.step()
+                loss_array.append(loss.item())
 
 
-        # %%
-        # Test
-        if e %50 == 0:
+            # %%
+            # Test
+            
             loss_t = 0
             pk=[]
             with torch.no_grad():
@@ -151,36 +151,40 @@ def training(dataset, epoch, method, input_size):
 
 
             loss_test.append(loss_t)
-            image = data[0].detach().cpu().numpy()
+            # image = data[0].detach().cpu().numpy()
             pk = np.average(pk)
             pk_test.append(pk)
             print("pk: {} %".format(pk))
-            imshow(cnn_model.cnn[0].weight.data.detach().cpu().numpy(), cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample.detach().cpu().numpy(), image)
-        # %%
+                # imshow(cnn_model.cnn[0].weight.data.detach().cpu().numpy(), cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample.detach().cpu().numpy(), image)
+            
+            if pk > 80:
+                pk_flag = False
+            # %%
 
-        # %%
-        # Adaptive learning rate
-        sse = sum(loss_array)
-        sse_array.append(sse)
-        lr = optimizer.param_groups[0]['lr']
-        if sse > old_sse * er:
-            # get old weights and bias
-            cnn_model.parameters = old_param
-            if lr >= 0.00001:
-                lr = lr_desc * lr
-        elif sse < old_sse:
-            lr = lr_inc * lr
-            if lr > 0.99:
-                lr = 0.99
-        optimizer.param_groups[0]['lr'] = lr
-        old_sse = sse
-        # %%
+            # %%
+            # Adaptive learning rate
+            sse = sum(loss_array)
+            sse_array.append(sse)
+            lr = optimizer.param_groups[0]['lr']
+            if sse > old_sse * er:
+                # get old weights and bias
+                cnn_model.parameters = old_param
+                if lr >= 0.00001:
+                    lr = lr_desc * lr
+            elif sse < old_sse:
+                lr = lr_inc * lr
+                if lr > 0.99:
+                    lr = 0.99
+            optimizer.param_groups[0]['lr'] = lr
+            old_sse = sse
+            # %%
 
-        print("learning rate:", optimizer.param_groups[0]['lr'])
-        print('Epoch: {}.............'.format(e), end=' ')
-        print("Loss: {:.4f}".format(loss))
-        
-        data.getChunks()
+            print("learning rate:", optimizer.param_groups[0]['lr'])
+            print('Epoch: {}.............'.format(e), end=' ')
+            print("Loss: {:.4f}".format(loss))
+            
+        dataset.getChunks()
+        pk_flag = True
 
     print(np.average(pk_test))
     return sse_array, pk_test
