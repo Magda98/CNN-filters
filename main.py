@@ -1,10 +1,9 @@
 import torch
 from data import Data
-from training import training
+from training import trainingModel
 from intel_data import intelDataset
 import seaborn as sns
 import matplotlib.pyplot as plt
-import torchvision
 import torchvision.transforms as transforms
 
 
@@ -16,17 +15,16 @@ if __name__ == "__main__":
 
     data =  intelDataset()
     
+    # input image size in px (square image)
     input_size = 150
-    # data = Data()
-    # data = data
-    # data.cuda()
-    epoch = list(range(11))
+
     methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal']
     # for method in methods:
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
 
-    sse, pk = training(dataset=data, epoch=epoch, method='xavier_uniform', input_size = input_size)
+    model =  trainingModel(dataset=data, epoch=10, method='xavier_uniform', input_size = input_size)
+    sse, pk = model.training()
     plt.figure()
     e = list(range(len(sse)))
     plt.plot(e, sse, label='xavier_uniform')
