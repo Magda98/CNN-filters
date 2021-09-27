@@ -8,6 +8,8 @@ import torchvision.transforms as transforms
 
 
 
+import numpy as np
+
 
 if __name__ == "__main__":
     sns.set()
@@ -22,9 +24,20 @@ if __name__ == "__main__":
     # for method in methods:
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
-
-    model =  trainingModel(dataset=data, epoch=10, method='xavier_uniform', input_size = input_size)
-    sse, pk = model.training()
+    c = [3,5,7,9,11,13,15,17,19,21]
+    fileName = 'filter_size'
+    results = []
+    
+    for x in c:
+        for y in c:
+            print("Wielkość filtrów: {:.4f}, {:.4f}".format(x, y))   
+            model =  trainingModel(dataset=data, method='xavier_uniform', input_size = input_size, c_kernels = [x, y])
+            sse, pk = model.training()
+            temp = [x, y, np.average(pk)]
+            results.append(temp)
+            
+    np.savetxt("data_plots/" + fileName + ".csv", results, delimiter=";")
+    
     plt.figure()
     e = list(range(len(sse)))
     plt.plot(e, sse, label='xavier_uniform')
