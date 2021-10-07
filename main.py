@@ -15,7 +15,6 @@ if __name__ == "__main__":
     sns.set()
     torch.cuda.empty_cache()
 
-    data =  intelDataset()
     
     # input image size in px (square image)
     input_size = 150
@@ -29,9 +28,9 @@ if __name__ == "__main__":
     results = []
     
     for x in c:
-        for y in c:
+        for y in c: 
             print("Wielkość filtrów: {:.4f}, {:.4f}".format(x, y))   
-            model =  trainingModel(dataset=data, method='xavier_uniform', input_size = input_size, c_kernels = [x, y])
+            model =  trainingModel(dataset=intelDataset(), method='xavier_uniform', input_size = input_size, c_kernels = [x, y])
             sse, pk = model.training()
             temp = [x, y, np.average(pk)]
             results.append(temp)

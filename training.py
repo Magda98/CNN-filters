@@ -189,7 +189,7 @@ class trainingModel():
                 
                 self.adaptive_leraning_rate()    
                 
-                if epoch_per_k >= 5:
+                if epoch_per_k >= 10 or pk > 80:
                     pk_flag = False
                 print("pk: {:.2f} %".format(pk))
                 print("Learning rate: {:.5f}".format(self.optimizer.param_groups[0]['lr']))
