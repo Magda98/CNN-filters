@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Data:
-    """ class for read dataset from file"""
+    """ class for read Cifar-10 dataset """
 
     def __init__(self):
         with open('cifar-10/data_batch_1', 'rb') as file:
