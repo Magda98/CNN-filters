@@ -42,7 +42,7 @@ class trainingModel():
             print("GPU not available, CPU used")
 
         # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
-        self.optimizer = torch.optim.Adam(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr)
 
     
          
