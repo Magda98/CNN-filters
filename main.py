@@ -24,7 +24,7 @@ if __name__ == "__main__":
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
     c = [3,5,7,9,11,13,15,17,19,21]
-    fileName = 'pool_filter_size'
+    fileName = 'filter_size'
     results = []
     
     for x in c:
