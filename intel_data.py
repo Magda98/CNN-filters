@@ -6,6 +6,7 @@ from torchvision import datasets
 import torch
 import numpy as np
 import pathlib
+import math
 
 class intelDataset():
     def __init__(self):
@@ -47,11 +48,51 @@ class intelDataset():
         self.test_data = datasets.ImageFolder('./intel/seg_test',
                                         transform = transform_test)
 
+
         self.k = 1
         # training dataset
         self.num_train = len(self.train_data)
         self.indices = list(range(self.num_train))
-        np.random.shuffle(self.indices)
+        self.buildings = self.indices[: 2190]
+        self.forest = self.indices[2190: 4461]
+        self.glacier = self.indices[4461: 6865]
+        self.mountain = self.indices[6865: 9377]
+        self.sea = self.indices[9377: 11651]
+        self.street = self.indices[11651: ]
+        
+        temp_idx = []
+        
+        tmp_buildings = math.floor(0.1*len(self.buildings))
+        tmp_forest = math.floor(0.1*len(self.forest))
+        tmp_glacier = math.floor(0.1*len(self.glacier))
+        tmp_mountain = math.floor(0.1*len(self.mountain))
+        tmp_sea = math.floor(0.1*len(self.sea))
+        tmp_street = math.floor(0.1*len(self.street))
+        
+        for x in range(9):
+            temp_idx.extend(self.buildings[: tmp_buildings])
+            temp_idx.extend(self.forest[:tmp_forest])
+            temp_idx.extend(self.glacier[:tmp_glacier])
+            temp_idx.extend(self.mountain[:tmp_mountain])
+            temp_idx.extend(self.sea[:tmp_sea])
+            temp_idx.extend(self.street[:tmp_street])
+            
+            del self.buildings[:tmp_buildings]
+            del self.forest[:tmp_forest]
+            del self.glacier[:tmp_glacier]
+            del self.mountain[:tmp_mountain]
+            del self.sea[:tmp_sea]
+            del self.street[:tmp_street]
+            
+        temp_idx.extend(self.buildings[:])
+        temp_idx.extend(self.forest[:])
+        temp_idx.extend(self.glacier[:])
+        temp_idx.extend(self.mountain[:])
+        temp_idx.extend(self.sea[:])
+        temp_idx.extend(self.street[:])
+            
+        self.indices = temp_idx
+         
         self.split = int(np.floor(valid_size*self.num_train))
         self.train_idx, self.valid_idx = self.indices[self.split:], self.indices[:self.split]
 
