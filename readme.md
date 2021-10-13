@@ -27,6 +27,8 @@ Purpose of this work is to find the most efficient way to train a neural network
 Several experiments will be conducted to find the best parameters such as filters size and filters quanitity.
 There will be also examinated influence of kernels initialization to correctness of classification.
 
+There also will be implemented filters and features map vizualization.
+
 How to calculate Conv2d out size and MaxPool2d out size:
 
 Conv2d:
@@ -41,5 +43,8 @@ MaxPool2d:
 
 - [x] crossvalidation
 - [ ] fix visualization
-- [ ] add custom filters initialization
+- [ ] experiment to choose best filters quantity
+- [ ] implementation of custom inicialization of weights
+- [ ] experiment to choose best inicialization of weights
+- [ ] experiment to choose quantity of neurons in FC layers
 - [x] code refactor and comments
