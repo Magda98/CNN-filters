@@ -14,7 +14,7 @@ class trainingModel():
     @ method - methos for weights initialization
     @ test - data for testing
     @ input_size - size of image
-    TODO: refactor code, move ALR to function
+    TODO: refactor code
     """
     def __init__(self,dataset, epoch, method, input_size):
         
