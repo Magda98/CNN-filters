@@ -16,10 +16,10 @@ class trainingModel():
     @ input_size - size of image
     TODO: refactor code
     """
-    def __init__(self,dataset, epoch, method, input_size):
+    def __init__(self,dataset, method, input_size, c_kernels = [7, 5], out_channels =[30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2]):
         
         self.dataset = dataset
-        self.cnn_model = cnnNet(input_size, c_kernels = [7, 5], out_channels =[30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2])
+        self.cnn_model = cnnNet(input_size, c_kernels = c_kernels, out_channels =out_channels, in_channels = in_channels, p_kernel=p_kernel, p_stride = p_stride)
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
 
@@ -42,7 +42,7 @@ class trainingModel():
             print("GPU not available, CPU used")
 
         # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
-        self.optimizer = torch.optim.Adam(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr)
 
     
          
@@ -159,6 +159,7 @@ class trainingModel():
         self.sse_array = []
         
         while run:
+            epoch_per_k = 0
             while pk_flag:
                 self.loss_array = []
                 self.old_param = self.cnn_model.parameters
@@ -178,6 +179,8 @@ class trainingModel():
                     
                 #increment epoch
                 e+=1
+                epoch_per_k+=1
+                
                 # Test
                 pk = self.test()
                 pk_test.append(pk)
@@ -186,7 +189,7 @@ class trainingModel():
                 
                 self.adaptive_leraning_rate()    
                 
-                if pk > 80:
+                if epoch_per_k >= 10 or pk > 80:
                     pk_flag = False
                 print("pk: {:.2f} %".format(pk))
                 print("Learning rate: {:.5f}".format(self.optimizer.param_groups[0]['lr']))
@@ -197,6 +200,5 @@ class trainingModel():
             pk_flag = True
             if self.dataset.last:
                 run = False
-
         print(np.average(pk_test))
         return self.sse_array, pk_test
