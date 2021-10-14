@@ -23,7 +23,7 @@ if __name__ == "__main__":
     # for method in methods:
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
-    c = [3,5,7,9,11,13,15,17,19,21]
+    c = [15]
     fileName = 'filter_size'
     results = []
     
