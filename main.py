@@ -24,14 +24,14 @@ if __name__ == "__main__":
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
     c1 = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
-    c2 = [21]
-    fileName = 'filter_count_1'
+    c2 = [31]
+    fileName = 'filter_count_2'
     results = []
     
     for x in c2:
         for y in c1: 
             print("ilość filtrów: {:.4f}, {:.4f}".format(x, y))   
-            model =  trainingModel(dataset=intelDataset(), method='xavier_uniform', input_size = input_size, c_kernels = [19, 7], in_channels = [3,x], out_channels =[x, y])
+            model =  trainingModel(dataset=intelDataset(), method='custom', input_size = input_size, c_kernels = [19, 7], in_channels = [3,x], out_channels =[x, y])
             sse, pk = model.training()
             temp = [x, y, np.average(pk)]
             results.append(temp)

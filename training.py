@@ -115,6 +115,8 @@ class trainingModel():
                     torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
                 elif method == 'xavier_normal':
                     torch.nn.init.xavier_normal_(m.weight, gain=1.0)
+                elif method == 'custom':
+                    m.weight.data = torch.zeros(m.weight.data.size())
 
     def adaptive_leraning_rate(self):
             self.sse = sum(self.loss_array)
