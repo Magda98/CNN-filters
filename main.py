@@ -24,9 +24,10 @@ if __name__ == "__main__":
     #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
     #     plt.plot(epoch, sse, label=method)
     c1 = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
-    c2 = [31]
-    fileName = 'filter_count_2'
+    c2 = [41]
+    fileName = 'filter_count_3'
     results = []
+    
     
     for x in c2:
         for y in c1: 
