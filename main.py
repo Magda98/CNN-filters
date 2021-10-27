@@ -32,7 +32,7 @@ if __name__ == "__main__":
     for x in c2:
         for y in c1: 
             print("ilość filtrów: {:.4f}, {:.4f}".format(x, y))   
-            model =  trainingModel(dataset=intelDataset(), method='xavier_uniform', input_size = input_size, c_kernels = [19, 7], in_channels = [3,x], out_channels =[x, y])
+            model =  trainingModel(dataset=intelDataset(), method='custom', input_size = input_size, c_kernels = [19, 7], in_channels = [3,x], out_channels =[x, y])
             sse, pk = model.training()
             temp = [x, y, np.average(pk)]
             results.append(temp)
