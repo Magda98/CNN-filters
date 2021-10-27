@@ -32,7 +32,7 @@ def polyval2d(x, y, m):
 if __name__ == "__main__":
     
     # wykres powierzchniowy
-    with open('data_plots/filter_size.csv') as f:
+    with open('data_plots/filter_count.csv') as f:
         X, Y, data_3 = [], [], []
         set_y, size = set(), 0
 
@@ -60,13 +60,13 @@ if __name__ == "__main__":
     
     fig = plt.figure()
     ax = plt.axes(projection='3d')
-    plt.xlabel('wielkość filtrów warstwa 1.')
-    plt.ylabel('wielkość filtrów warstwa 2.')
+    plt.xlabel('ilość filtrów warstwa 1.')
+    plt.ylabel('ilość filtrów warstwa 2.')
     ax.set_zlabel('PK[%]')
     
-    plt.xticks(np.arange(1, 22, step=2))
-    plt.yticks(np.arange(1, 22, step=2))
-    ax.plot_surface(data_1, data_2, Z, cmap=cm.coolwarm,
+    # plt.xticks(np.arange(1, 101, step=10))
+    # plt.yticks(np.arange(1, 41, step=10))
+    ax.plot_surface(data_2, data_1,  Z, cmap=cm.coolwarm,
                     rstride=1, cstride=1, linewidth=2, antialiased=True)
     # ax.scatter(X, Y, data_3, c='r', s=50)
     plt.show()
