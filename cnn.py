@@ -26,7 +26,7 @@ class cnnNet(nn.Module):
             self.cnn.append(nn.MaxPool2d(kernel_size=p,  stride=s))
             size_out = math.floor((size_out +2*0 - 1*(p-1) -1)/s +1)
 
-        self.fc1 = nn.Linear(size_out*size_out* 16, 84)
+        self.fc1 = nn.Linear(size_out*size_out* out_channels[1], 84)
         self.fc2 = nn.Linear(84, 16)
         self.fc3 = nn.Linear(16, 6)
 

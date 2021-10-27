@@ -16,10 +16,10 @@ class trainingModel():
     @ input_size - size of image
     TODO: refactor code
     """
-    def __init__(self,dataset, method, input_size, c_kernels = [7, 5], out_channels =[30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2]):
+    def __init__(self,dataset, method, input_size, c_kernels = [7, 5], out_channels = [30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2]):
         
         self.dataset = dataset
-        self.cnn_model = cnnNet(input_size, c_kernels = c_kernels, out_channels =out_channels, in_channels = in_channels, p_kernel=p_kernel, p_stride = p_stride)
+        self.cnn_model = cnnNet(input_size, c_kernels = c_kernels, out_channels = out_channels, in_channels = in_channels, p_kernel=p_kernel, p_stride = p_stride)
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
 
