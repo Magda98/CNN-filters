@@ -42,7 +42,7 @@ MaxPool2d:
 ## ToDo
 
 - [x] crossvalidation
-- [ ] fix visualization
+- [x] fix visualization
 - [x] experiment to choose best filters quantity
 - [ ] implementation of custom inicialization of weights
 - [ ] experiment to choose best inicialization of weights
