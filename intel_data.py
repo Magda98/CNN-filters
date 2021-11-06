@@ -48,6 +48,9 @@ class intelDataset():
         self.test_data = datasets.ImageFolder('./intel/seg_test',
                                         transform = transform_test)
 
+        #load sample image
+        self.sample = torch.utils.data.DataLoader(datasets.ImageFolder('./intel/sample',
+                                        transform = transform_test))
 
         self.k = 1
         # training dataset
@@ -141,7 +144,7 @@ class intelDataset():
         import pathlib
         root = pathlib.Path('./intel/seg_train/')
         classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
-        print(classes)
+        # print(classes)
         print(self.k)
         if self.last:
             self.k = 0

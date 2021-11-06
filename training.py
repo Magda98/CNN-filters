@@ -2,6 +2,8 @@ import torch
 from data import Data
 from cnn import cnnNet
 import torch.nn as nn
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -59,41 +61,61 @@ class trainingModel():
         valid = sum(i < 0.5 for i in x)
         return valid / x.shape[0] * 100
 
-    def imshow(self, conv1, conv2, features_map, image):
+    def imshow(self, conv1, conv2, features_map1, features_map2, image, epoch):
         """
         Function plotting images
         @ conv1, conv2 - filters from each conv layer
         @ features_map - each images after passing it through layer
         @ image - image given at input 
         """
-        plt.subplot(5,6, 3)
+        y = features_map1.shape[1]
+        x = conv1.shape[1] + 2
+        plt.rcParams['axes.grid'] = False
+        
+        fig, ax = plt.subplots(x, y)
+        [axi.set_axis_off() for axi in ax.ravel()]
         image =   np.transpose(image, (1, 2, 0))
-        plt.imshow(image)
-        plt.axis('off')
-        plt.grid(b=None) 
+        ax[0, int(y/2)].imshow(image)
+      
 
-        n = 7
+        n = y
         for f in conv1:
             for c in f:
-                plt.subplot(5,6,n)
-                n+=1
                 npimg =  c
-                plt.imshow(npimg, cmap="gray")
-                plt.axis('off')
-                plt.grid(b=None)    
+                ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
+                n+=1
 
-        n = 25
-        for f in features_map[0]:
-            plt.subplot(5,6,n)
-            n+=1
+        n = (conv1.shape[1]+ 1) *y
+        for f in features_map1[0]:
             npimg = f
-            plt.imshow(npimg, cmap="gray")
-            plt.axis('off')
-            plt.grid(b=None)       
-        plt.draw()
-        plt.pause(1e-17)
-        plt.clf()
+            ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
+            n+=1
+             
+        fig.savefig('./output_images/sample_test/conv1/'+str(epoch)+'.png', dpi=300)
+        
+        y = features_map2.shape[1]
+        x = conv2.shape[1] + 2
+        plt.rcParams['axes.grid'] = False
+        
+        fig, ax = plt.subplots(x, y)
+        [axi.set_axis_off() for axi in ax.ravel()]
+        ax[0, int(y/2)].imshow(image)
+      
 
+        n = y
+        for f in conv2:
+            for c in f:
+                npimg =  c
+                ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
+                n+=1
+
+        n = (conv2.shape[1] + 1)*y
+        for f in features_map2[0]:
+            npimg = f
+            ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
+            n+=1
+             
+        fig.savefig('./output_images/sample_test/conv2/'+str(epoch)+'.png', dpi=300)
 
     def weights_init(self, m, method):
         """
@@ -133,6 +155,22 @@ class trainingModel():
             self.optimizer.param_groups[0]['lr'] = lr
             self.old_sse = self.sse
 
+
+    def getSampleData(self):
+        
+        with torch.no_grad():
+            for data, labels in self.dataset.sample:
+                labels = labels.cuda()
+                data = data.cuda()
+                out, sample = self.cnn_model(data)
+                output = torch.argmax(out, dim=1)
+                print('wyjście: {}'.format(output.detach().cpu().numpy()[0]))
+                image = data[0].detach().cpu().numpy()
+                break        
+        
+        return sample, image
+    
+    
     def test(self):
         loss_t = 0
         pk=[]
@@ -148,7 +186,6 @@ class trainingModel():
 
 
         self.loss_test.append(loss_t)
-        # image = data[0].detach().cpu().numpy()
         pk = np.average(pk)
         return pk
         
@@ -179,19 +216,23 @@ class trainingModel():
                     self.optimizer.step()
                     self.loss_array.append(loss.item())
                     
+             
+                
+                # Test
+                pk  = self.test()
+                pk_test.append(pk)
+                
+                if e%10 == 0:
+                    sample, image = self.getSampleData()
+                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().numpy(), self.cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample[0].detach().cpu().numpy(), sample[1].detach().cpu().numpy(), image, e)
+                
+                self.adaptive_leraning_rate()    
+                
                 #increment epoch
                 e+=1
                 epoch_per_k+=1
                 
-                # Test
-                pk = self.test()
-                pk_test.append(pk)
-                
-                # imshow(cnn_model.cnn[0].weight.data.detach().cpu().numpy(), cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample.detach().cpu().numpy(), image)
-                
-                self.adaptive_leraning_rate()    
-                
-                if epoch_per_k >= 10 or pk > 80:
+                if epoch_per_k >= 50:
                     pk_flag = False
                 print("pk: {:.2f} %".format(pk))
                 print("Learning rate: {:.5f}".format(self.optimizer.param_groups[0]['lr']))
@@ -203,4 +244,4 @@ class trainingModel():
             if self.dataset.last:
                 run = False
         print(np.average(pk_test))
-        return self.sse_array, pk_test
+        return self.sse_array, pk_test, e

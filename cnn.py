@@ -27,18 +27,19 @@ class cnnNet(nn.Module):
             size_out = math.floor((size_out +2*0 - 1*(p-1) -1)/s +1)
 
         self.fc1 = nn.Linear(size_out*size_out* out_channels[1], 84)
-        self.fc2 = nn.Linear(84, 16)
-        self.fc3 = nn.Linear(16, 6)
+        self.fc2 = nn.Linear(84, 32)
+        self.fc3 = nn.Linear(32, 6)
 
     def forward(self, inp):
         out = self.cnn[1](F.relu(self.cnn[0](inp)))
-        sample = out
+        sample1 = out
 
         out = self.cnn[3](F.relu(self.cnn[2](out)))
+        sample2 = out
 
         out = torch.flatten(out, 1)
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
         m = torch.nn.LogSoftmax(dim=1)
         out = m(self.fc3(out))
-        return out, sample
+        return out, (sample1, sample2)
