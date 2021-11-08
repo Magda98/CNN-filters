@@ -31,7 +31,7 @@ if __name__ == "__main__":
     
  
     # for method in methods:
-    model =  trainingModel(dataset=intelDataset(), method='xavier_uniform', input_size = input_size, c_kernels = [19, 7], in_channels = [3,8], out_channels =[8, 24])
+    model =  trainingModel(dataset=intelDataset(), method='xavier_normal', input_size = input_size, c_kernels = [19, 3], in_channels = [3,8], out_channels =[8, 16])
     sse, pk, e = model.training()
     # plt.plot(range(e), sse, label=method)
         

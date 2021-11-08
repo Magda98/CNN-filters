@@ -18,8 +18,8 @@ class intelDataset():
         # workers(processes) in loading data
         self.num_workers = 0
 
-        # brach size
-        self.batch_size = 200
+        # batch size
+        self.batch_size = 10
 
         # k-fold validation (k=10)
         valid_size = 0.1
@@ -31,7 +31,7 @@ class intelDataset():
         # ! Add normalization
         transform_train = transforms.Compose([
             transforms.Resize((150, 150)),
-            transforms.RandomHorizontalFlip(),
+            # transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
@@ -138,17 +138,13 @@ class intelDataset():
         validloader = torch.utils.data.DataLoader(self.train_data, batch_size = self.batch_size,
                                                 sampler = valid_sampler,
                                                 num_workers = self.num_workers)
-        testloader = torch.utils.data.DataLoader(self.test_data, batch_size = self.batch_size,
-                                                num_workers = self.num_workers)
 
-        import pathlib
-        root = pathlib.Path('./intel/seg_train/')
-        classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
-        # print(classes)
         print(self.k)
         if self.last:
             self.k = 0
-        return trainloader, validloader, testloader
+            
+        self.trainloader = trainloader
+        self.validloader = validloader
     
     
 

@@ -6,7 +6,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
-
+from random import seed
+from random import randint
 
 class trainingModel():
     """
@@ -20,13 +21,14 @@ class trainingModel():
     """
     def __init__(self,dataset, method, input_size, c_kernels = [7, 5], out_channels = [30, 16], in_channels = [3,30], p_kernel=[2,2], p_stride = [2,2]):
         
+        seed(1)
         self.dataset = dataset
         self.cnn_model = cnnNet(input_size, c_kernels = c_kernels, out_channels = out_channels, in_channels = in_channels, p_kernel=p_kernel, p_stride = p_stride)
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.0001
+        self.lr = 0.00001
         self.er = 1.04
         self.lr_inc = 1.04
         self.lr_desc = 0.7
@@ -44,7 +46,7 @@ class trainingModel():
             print("GPU not available, CPU used")
 
         # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
-        self.optimizer = torch.optim.Adam(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     
          
@@ -91,7 +93,7 @@ class trainingModel():
             ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
             n+=1
              
-        fig.savefig('./output_images/sample_test/conv1/'+str(epoch)+'.png', dpi=300)
+        fig.savefig('./output_images/sample_test_6/conv1/'+str(epoch)+'.png', dpi=300)
         
         y = features_map2.shape[1]
         x = conv2.shape[1] + 2
@@ -115,7 +117,13 @@ class trainingModel():
             ax[int(n/y), n%y].imshow(npimg, cmap="gray")  
             n+=1
              
-        fig.savefig('./output_images/sample_test/conv2/'+str(epoch)+'.png', dpi=300)
+        fig.savefig('./output_images/sample_test_6/conv2/'+str(epoch)+'.png', dpi=300)
+        
+    def gaussian_fn(self, M, std):
+        n = torch.arange(0, M) - (M - 1.0) / 2.0
+        sig2 = 2 * std * std
+        w = torch.exp(-n ** 2 / sig2)
+        return w
 
     def weights_init(self, m, method):
         """
@@ -138,7 +146,23 @@ class trainingModel():
                 elif method == 'xavier_normal':
                     torch.nn.init.xavier_normal_(m.weight, gain=1.0)
                 elif method == 'custom':
-                    m.weight.data = torch.zeros(m.weight.data.size())
+                    if ( m.kernel_size[0] != 3):
+                        temp = []
+                        for _ in range (m.out_channels):
+                            x = []
+                            for _ in range (m.in_channels):
+                                gkern1d = self.gaussian_fn(m.kernel_size[0], randint(0, 256))
+                                gkern2d = torch.outer(gkern1d, gkern1d)
+                                x.append(gkern2d)
+                            temp.append(torch.stack([k for k in x ], 0))
+                        y = torch.stack([k for k in temp ], 0)
+                    else:
+                        gkern2d = torch.tensor([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]], dtype=torch.float32)
+                        x = torch.stack(([gkern2d for _ in range(m.in_channels)]), 0)
+                        y = torch.stack(([x for _ in range(m.out_channels)]), 0)
+                    m.weight.data = y
+                    
+                    
 
     def adaptive_leraning_rate(self):
             self.sse = sum(self.loss_array)
@@ -147,7 +171,7 @@ class trainingModel():
             if self.sse > self.old_sse * self.er:
                 # get old weights and bias
                 self.cnn_model.parameters = self.old_param
-                if lr >= 0.00001:
+                if lr >= 0.000001:
                     lr = self.lr_desc * lr
             elif self.sse < self.old_sse:
                 lr = self.lr_inc * lr
@@ -157,22 +181,24 @@ class trainingModel():
 
 
     def getSampleData(self):
-        
+        i = 0
         with torch.no_grad():
             for data, labels in self.dataset.sample:
-                labels = labels.cuda()
-                data = data.cuda()
-                out, sample = self.cnn_model(data)
-                output = torch.argmax(out, dim=1)
-                print('wyjście: {}'.format(output.detach().cpu().numpy()[0]))
-                image = data[0].detach().cpu().numpy()
-                break        
+                if i == 7:
+                    labels = labels.cuda()
+                    data = data.cuda()
+                    out, sample = self.cnn_model(data)
+                    output = torch.argmax(out, dim=1)
+                    print('wyjście: {}'.format(output.detach().cpu().numpy()[0]))
+                    image = data[0].detach().cpu().numpy()
+                    break
+                i+=1        
         
         return sample, image
     
     
     def test(self):
-        loss_t = 0
+        self.loss_t = 0
         pk=[]
         with torch.no_grad():
             for data, labels in self.dataset.validloader:
@@ -181,22 +207,21 @@ class trainingModel():
                 out, sample = self.cnn_model(data)
                 output = torch.argmax(out, dim=1)
                 loss = self.criterion(out, labels)
-                loss_t+= loss.cpu().item()
+                self.loss_t+= loss.cpu().item()
                 pk.append(self.valid_classification(output, labels))
 
 
-        self.loss_test.append(loss_t)
+        self.loss_test.append(self.loss_t)
         pk = np.average(pk)
         return pk
         
     def training(self):
         e = 0
         pk_test = []
-        self.loss_test = []
         run = True
         pk_flag = True
         self.sse_array = []
-        
+        self.loss_test = []
         while run:
             epoch_per_k = 0
             while pk_flag:
@@ -222,7 +247,7 @@ class trainingModel():
                 pk  = self.test()
                 pk_test.append(pk)
                 
-                if e%10 == 0:
+                if e%2 == 0:
                     sample, image = self.getSampleData()
                     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().numpy(), self.cnn_model.cnn[2].weight.data.detach().cpu().numpy(), sample[0].detach().cpu().numpy(), sample[1].detach().cpu().numpy(), image, e)
                 
