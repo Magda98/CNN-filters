@@ -1,11 +1,13 @@
+from typing import List
+from torch.functional import Tensor
 import torch.nn as nn
 import torch.nn.functional as F
 import torch
 import math
 
 
-class cnnNet(nn.Module):
-    def __init__(self, input_size, c_kernels = [7, 5], in_channels = [3,6], out_channels =[6, 16], p_kernel=[2,2], p_stride = [2,2]):
+class CnnNet(nn.Module):
+    def __init__(self, input_size: int, c_kernels: List[int] = [7, 5], in_channels: List[int] = [3, 6], out_channels: List[int] = [6, 16], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
         """
         CNN class
         * Architecture: Conv2d -> ReLu -> maxPool2d -> Conv2d -> ReLu -> maxPool2d -> fc1 -> fc2 -> fc3
@@ -20,18 +22,18 @@ class cnnNet(nn.Module):
         self.cnn = nn.ModuleList()
         size_out = input_size
 
-        for k,c_in,c_out,p,s in zip(c_kernels, in_channels, out_channels, p_kernel, p_stride):
+        for k, c_in, c_out, p, s in zip(c_kernels, in_channels, out_channels, p_kernel, p_stride):
             self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k))
-            size_out = math.floor((size_out +2*0 - 1*(k-1) -1)/1 +1)
+            size_out = math.floor((size_out + 2*0 - 1*(k-1) - 1)/1 + 1)
             self.cnn.append(nn.MaxPool2d(kernel_size=p,  stride=s))
-            size_out = math.floor((size_out +2*0 - 1*(p-1) -1)/s +1)
+            size_out = math.floor((size_out + 2*0 - 1*(p-1) - 1)/s + 1)
 
-        self.fc1 = nn.Linear(size_out*size_out* out_channels[1], 128)
+        self.fc1 = nn.Linear(size_out*size_out * out_channels[1], 128)
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 16)
         self.fc4 = nn.Linear(16, 6)
 
-    def forward(self, inp):
+    def forward(self, inp: Tensor):  # type:ignore
         out = self.cnn[1](F.relu(self.cnn[0](inp)))
         sample1 = out
 
