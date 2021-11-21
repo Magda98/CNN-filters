@@ -29,6 +29,7 @@ class IntelDataset():
 
         # flag set if passed through all training set
         self.last = False
+        self.last_temp = False
 
         # * Horizontal flip - for augmentation
         # ! Add normalization
@@ -123,15 +124,18 @@ class IntelDataset():
         self.validloader = validloader
         self.testloader = testloader
 
-    def getChunks(self):
+    def get_chunks(self):
         self.k += 1
+        if self.last_temp:
+            self.k = 0
+            self.last = True
         if(self.k < 10):
             self.train_idx, self.valid_idx = self.indices[:(
                 (self.k-1)*self.split)] + self.indices[(self.k*self.split):], self.indices[((self.k-1)*self.split):(self.k*self.split)]
         else:
             self.train_idx, self.valid_idx = self.indices[:(
                 (self.k-1)*self.split)], self.indices[((self.k-1)*self.split):]
-            self.last = True
+            self.last_temp = True
 
         train_sampler = SubsetRandomSampler(self.train_idx)
         valid_sampler = SubsetRandomSampler(self.valid_idx)
@@ -144,8 +148,6 @@ class IntelDataset():
                                  num_workers=self.num_workers)
 
         print(self.k)
-        if self.last:
-            self.k = 0
 
         self.trainloader = trainloader
         self.validloader = validloader

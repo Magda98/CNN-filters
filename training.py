@@ -11,6 +11,7 @@ from cnn import CnnNet
 import torch.nn as nn
 import matplotlib
 from intel_data import IntelDataset
+from torchvision.utils import make_grid
 matplotlib.use('Agg')
 
 
@@ -24,7 +25,7 @@ class trainingModel():
     @ input_size - size of image
     """
 
-    def __init__(self, dataset: IntelDataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
+    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
 
         seed(1)
         self.dataset = dataset
@@ -65,13 +66,28 @@ class trainingModel():
         valid = sum(i < 0.5 for i in temp)
         return valid / temp.shape[0] * 100  # type:ignore
 
-    def imshow(self, conv1: npt.NDArray[np.float64], conv2: npt.NDArray[np.float64], features_map1: npt.NDArray[np.float64], features_map2: npt.NDArray[np.float64], image: npt.NDArray[np.float64], epoch: int):
+    def imshow(self, conv1: Tensor, conv2: Tensor, features_map1: Tensor, features_map2: Tensor, image: npt.NDArray[np.float64], epoch: int):
         """
         Function plotting images
         @ conv1, conv2 - filters from each conv layer
         @ features_map - each images after passing it through layer
         @ image - image given at input
         """
+
+        features_map1 = features_map1 - features_map1.min()
+        features_map1 = features_map1 / features_map1.max()
+        features_map2 = features_map2 - features_map2.min()
+        features_map2 = features_map2 / features_map2.max()
+        conv1 = conv1 - conv1.min()
+        conv1 = conv1 / conv1.max()
+        conv2 = conv2 - conv2.min()
+        conv2 = conv2 / conv2.max()
+
+        features_map1 = features_map1.numpy()
+        features_map2 = features_map2.numpy()
+        conv1 = conv1.numpy()
+        conv2 = conv2.numpy()
+
         y = features_map1.shape[1]  # type:ignore
         x = conv1.shape[1] + 2  # type:ignore
         plt.rcParams['axes.grid'] = False  # type:ignore
@@ -94,7 +110,7 @@ class trainingModel():
             ax[int(n/y), n % y].imshow(npimg, cmap="gray")
             n += 1
 
-        fig.savefig('./output_images/sample_test_7/conv1/'+str(epoch)+'.png', dpi=300)
+        fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
 
         y = features_map2.shape[1]
         x = conv2.shape[1] + 2
@@ -117,7 +133,34 @@ class trainingModel():
             ax[int(n/y), n % y].imshow(npimg, cmap="gray")
             n += 1
 
-        fig.savefig('./output_images/sample_test_7/conv2/'+str(epoch)+'.png', dpi=300)
+        fig.savefig('./output_images/sample_test_8/conv2/'+str(epoch)+'.png', dpi=300)
+
+        with open('./output_images/sample_test_8/readme.txt', 'w') as f:
+            for (index, pk) in enumerate(self.pk_cv):
+                f.write('pk'+str(index + 1) + ': ' + str(pk) + '\n')
+            f.write('pk: ' + str(self.current_pk) + '\n')
+
+    def imshow2(self, conv1: Tensor, conv2: Tensor, features_map1: Tensor, features_map2: Tensor, image: npt.NDArray[np.float64], epoch: int):
+        features_map1 = features_map1 - features_map1.min()
+        features_map1 = features_map1 / features_map1.max()
+        features_map2 = features_map2 - features_map2.min()
+        features_map2 = features_map2 / features_map2.max()
+        conv1 = conv1 - conv1.min()
+        conv1 = conv1 / conv1.max()
+        conv2 = conv2 - conv2.min()
+        conv2 = conv2 / conv2.max()
+
+        plt.rcParams['axes.grid'] = False  # type:ignore
+
+        fig, ax = plt.subplots(3, 1)  # type:ignore
+        [axi.set_axis_off() for axi in ax.ravel()]
+        image = np.transpose(image, (1, 2, 0))  # type:ignore
+        ax[0].imshow(image)
+        img = make_grid(conv1)
+        ax[1].imshow(img.permute(1, 2, 0))
+        img = make_grid(features_map1)
+        ax[2].imshow(img.permute(1, 2, 0), cmap='gray', vmin=0, vmax=1)
+        fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
 
     def gaussian_fn(self, M: int, std: int):
         n = torch.arange(0, M) - (M - 1.0) / 2.0
@@ -215,6 +258,8 @@ class trainingModel():
         self.sse_array: List[float] = []
         self.loss_test: List[float] = []
         loss = 0
+        self.pk_cv: List[float] = []
+        self.current_pk = 0
         while run:
             epoch_per_k = 0
             while pk_flag:
@@ -236,12 +281,13 @@ class trainingModel():
 
                 # Test
                 pk = self.test()
+                self.current_pk = pk
                 pk_test.append(pk)
 
-                if e % 2 == 0:
+                if e % 50 == 0:
                     sample, image = self.getSampleData()
-                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().numpy(), self.cnn_model.cnn[2].weight.data.detach(  # type:ignore
-                    ).cpu().numpy(), sample[0].detach().cpu().numpy(), sample[1].detach().cpu().numpy(), image, e)
+                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[2].weight.data.detach(  # type:ignore
+                    ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
 
                 self.adaptive_leraning_rate()
 
@@ -249,14 +295,17 @@ class trainingModel():
                 e += 1
                 epoch_per_k += 1
 
-                if epoch_per_k >= 50:
+                if epoch_per_k >= 5000:
+                    self.pk_cv.append(pk)
                     pk_flag = False
+
+                temp_lr: float = self.optimizer.param_groups[0]['lr']
                 print("pk: {:.2f} %".format(pk))
-                print("Learning rate: {:.5f}".format(self.optimizer.param_groups[0]['lr']))
+                print("Learning rate: {:.5f}".format(temp_lr))
                 print('Epoch: {}.............'.format(e), end=' ')
                 print("Loss: {:.4f}".format(loss))
 
-            self.dataset.getChunks()
+            self.dataset.get_chunks()
             pk_flag = True
             if self.dataset.last:
                 run = False

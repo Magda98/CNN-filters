@@ -2,13 +2,12 @@ import matplotlib.pyplot as plt
 import torch
 from training import trainingModel
 from intel_data import IntelDataset
+from sample_data import SampleDataset
 import seaborn as sns
-import matplotlib
-matplotlib.use('Agg')
 
 
 if __name__ == "__main__":
-    
+
     sns.set()  # type:ignore
     torch.cuda.empty_cache()
 
@@ -26,7 +25,7 @@ if __name__ == "__main__":
 
     # for method in methods:
     model = trainingModel(dataset=IntelDataset(), method='xavier_normal', input_size=input_size,
-                          c_kernels=[19, 3], in_channels=[3, 8], out_channels=[8, 16])
+                          c_kernels=[30, 20], in_channels=[3, 3], out_channels=[3, 16])
     sse, pk, e = model.training()
     # plt.plot(range(e), sse, label=method)
 
