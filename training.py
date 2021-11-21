@@ -295,7 +295,7 @@ class trainingModel():
                 e += 1
                 epoch_per_k += 1
 
-                if epoch_per_k >= 5000:
+                if epoch_per_k >= 1:
                     self.pk_cv.append(pk)
                     pk_flag = False
 
