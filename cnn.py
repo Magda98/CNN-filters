@@ -7,7 +7,7 @@ import math
 
 
 class CnnNet(nn.Module):
-    def __init__(self, input_size: int, c_kernels: List[int] = [7, 5], in_channels: List[int] = [3, 6], out_channels: List[int] = [6, 16], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
+    def __init__(self, input_size: int, output_size: int,  c_kernels: List[int] = [7, 5], in_channels: List[int] = [3, 6], out_channels: List[int] = [6, 16], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
         """
         CNN class
         * Architecture: Conv2d -> ReLu -> maxPool2d -> Conv2d -> ReLu -> maxPool2d -> fc1 -> fc2 -> fc3
@@ -21,24 +21,34 @@ class CnnNet(nn.Module):
         super().__init__()
         self.cnn = nn.ModuleList()
         size_out = input_size
-
-        for k, c_in, c_out, p, s in zip(c_kernels, in_channels, out_channels, p_kernel, p_stride):
+        for i, (k, c_in, c_out) in enumerate(zip(c_kernels, in_channels, out_channels)):
             self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k))
             size_out = math.floor((size_out + 2*0 - 1*(k-1) - 1)/1 + 1)
-            self.cnn.append(nn.MaxPool2d(kernel_size=p,  stride=s))
-            size_out = math.floor((size_out + 2*0 - 1*(p-1) - 1)/s + 1)
+            if i % 2 == 0 and i > 0:
+                self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0]))
+                size_out = math.floor((size_out + 2*0 - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
 
-        self.fc1 = nn.Linear(size_out*size_out * out_channels[1], 128)
+        self.fc1 = nn.Linear(size_out*size_out * out_channels[-1], 128)
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 16)
-        self.fc4 = nn.Linear(16, 6)
+        self.fc4 = nn.Linear(16, output_size)
 
     def forward(self, inp: Tensor):  # type:ignore
-        out = self.cnn[1](F.relu(self.cnn[0](inp)))
-        sample1 = out
+        # out = self.cnn[1](F.relu(self.cnn[0](inp)))
+        # sample1 = out
 
-        out = self.cnn[3](F.relu(self.cnn[2](out)))
-        sample2 = out
+        # out = self.cnn[3](F.relu(self.cnn[2](out)))
+        # sample2 = out
+        out = inp
+        for i, l in enumerate(self.cnn):
+            if isinstance(l, nn.Conv2d):
+                out = F.relu(l(out))
+                if i == 0:
+                    sample1 = out
+                elif i == 1:
+                    sample2 = out
+            elif isinstance(l, nn.MaxPool2d):
+                out = l(out)
 
         out = torch.flatten(out, 1)
         out = F.relu(self.fc1(out))

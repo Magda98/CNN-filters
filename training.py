@@ -26,11 +26,25 @@ class trainingModel():
     """
 
     def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
-
+        def printgradnorm(self, grad_input, grad_output):
+            print('Inside ' + self.__class__.__name__ + ' backward')
+            print('Inside class:' + self.__class__.__name__)
+            print('')
+            print('grad_input: ', type(grad_input))
+            print('grad_input[0]: ', type(grad_input[0]))
+            print('grad_output: ', type(grad_output))
+            print('grad_output[0]: ', type(grad_output[0]))
+            print('')
+            print('grad_input size:', grad_input[0].size())
+            print('grad_output size:', grad_output[0].size())
+            print('grad_input norm:', grad_input[0].norm())
         seed(1)
+        print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
-        self.cnn_model = CnnNet(input_size, c_kernels=c_kernels, out_channels=out_channels,
+        self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                 in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+
+        # self.cnn_model.cnn[0].register_full_backward_hook(printgradnorm)
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
 
@@ -39,7 +53,7 @@ class trainingModel():
         self.er = 1.04
         self.lr_inc = 1.04
         self.lr_desc = 0.7
-        self.old_sse = 0
+        self.old_sse = 0.0
 
         is_cuda = torch.cuda.is_available()
         if is_cuda:
@@ -205,19 +219,20 @@ class trainingModel():
                     m.weight.data = filter_tensor
 
     def adaptive_leraning_rate(self):
-        self.sse = sum(self.loss_array)
+        # self.sse = sum(self.loss_array)
+        self.sse = self.loss_t
         self.sse_array.append(self.sse)
-        lr = self.optimizer.param_groups[0]['lr']
+        lr: float = self.optimizer.param_groups[0]['lr']
         if self.sse > self.old_sse * self.er:
             # get old weights and bias
             self.cnn_model.parameters = self.old_param
             if lr >= 0.000001:
-                lr = self.lr_desc * lr
+                lr *= self.lr_desc
         elif self.sse < self.old_sse:
-            lr = self.lr_inc * lr
+            lr *= self.lr_inc
             lr = min([lr, 0.99])
         self.optimizer.param_groups[0]['lr'] = lr
-        self.old_sse = self.sse
+        self.old_sse: float = self.sse
 
     def getSampleData(self) -> Tuple[Tensor, npt.NDArray[np.float64]]:
         i = 0
@@ -228,7 +243,7 @@ class trainingModel():
                     data = data.cuda()
                     out, sample = self.cnn_model(data)
                     output = torch.argmax(out, dim=1)
-                    print('wyjście: {}'.format(output.detach().cpu().numpy()[0]))
+                    print('wyjście sieci dla danego obrazu: {}'.format(self.dataset.classes[output.detach().cpu().numpy()[0]]))
                     image = data[0].detach().cpu().numpy()
                     break
                 i += 1
@@ -283,25 +298,24 @@ class trainingModel():
                 pk = self.test()
                 self.current_pk = pk
                 pk_test.append(pk)
-
-                if e % 50 == 0:
-                    sample, image = self.getSampleData()
-                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[2].weight.data.detach(  # type:ignore
-                    ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
-
                 self.adaptive_leraning_rate()
+
+                # if e % 10 == 0:
+                #     sample, image = self.getSampleData()
+                #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[2].weight.data.detach(  # type:ignore
+                #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
 
                 # increment epoch
                 e += 1
                 epoch_per_k += 1
 
-                if epoch_per_k >= 1:
+                if epoch_per_k >= 10:
                     self.pk_cv.append(pk)
                     pk_flag = False
 
                 temp_lr: float = self.optimizer.param_groups[0]['lr']
                 print("pk: {:.2f} %".format(pk))
-                print("Learning rate: {:.5f}".format(temp_lr))
+                print("Learning rate: {:.10f}".format(temp_lr))
                 print('Epoch: {}.............'.format(e), end=' ')
                 print("Loss: {:.4f}".format(loss))
 

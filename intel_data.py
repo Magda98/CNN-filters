@@ -47,13 +47,13 @@ class IntelDataset():
         ])
 
         # Load data from folders
-        self.train_data = datasets.ImageFolder('./intel/seg_train',
+        self.train_data = datasets.ImageFolder('./datasets/intel/seg_train',
                                                transform=transform_train)
-        self.test_data = datasets.ImageFolder('./intel/seg_test',
+        self.test_data = datasets.ImageFolder('./datasets/intel/seg_test',
                                               transform=transform_test)
 
         # load sample image
-        self.sample = DataLoader(datasets.ImageFolder('./intel/sample', transform=transform_test))
+        self.sample = DataLoader(datasets.ImageFolder('./datasets/intel/sample', transform=transform_test))
 
         self.k = 1
         # training dataset
@@ -117,9 +117,9 @@ class IntelDataset():
                                 num_workers=self.num_workers)
 
         # classes
-        root = pathlib.Path('./intel/seg_train/')
-        classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
-        print(classes)
+        root = pathlib.Path('./datasets/intel/seg_train/')
+        self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
+        print(self.classes)
         self.trainloader = trainloader
         self.validloader = validloader
         self.testloader = testloader

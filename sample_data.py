@@ -14,25 +14,29 @@ import math
 class SampleDataset():
     def __init__(self):
 
+        self.last = False
+        self.k = 0
         transform_viz_test = transforms.Compose([
             transforms.Resize((840, 840)),
             transforms.ToTensor(),
         ])
 
-        self.test_viz_data = DataLoader(datasets.ImageFolder('./intel/sample_test', transform=transform_viz_test))
+        self.test_viz_data = DataLoader(datasets.ImageFolder('./datasets/sample_test', transform=transform_viz_test))
 
         # load sample image
-        self.sample = DataLoader(datasets.ImageFolder('./intel/sample', transform=transform_viz_test))
+        self.sample = DataLoader(datasets.ImageFolder('./datasets/sample_test', transform=transform_viz_test))
 
         self.sample = self.test_viz_data
 
         # classes
-        root = pathlib.Path('./intel/sample_test/')
-        classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
-        print(classes)
+        root = pathlib.Path('./datasets/sample_test/')
+        self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
+        print(self.classes)
         self.trainloader = self.sample
         self.validloader = self.sample
         self.testloader = self.sample
 
-        def get_chunks():
-            print("no cv")
+    def get_chunks(self):
+        if self.k == 10:
+            self.last = True
+        self.k += 1

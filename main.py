@@ -15,21 +15,26 @@ if __name__ == "__main__":
     input_size = 150
 
     methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
-    # for method in methods:
-    #     sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
-    #     plt.plot(epoch, sse, label=method)
-    # c1 = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
-    # c2 = [41]
-    # fileName = 'filter_count_3'
-    # results = []
+    # region experiments loop
+    """
+    for method in methods:
+        sse, pk = training(dataset=data, test = test ,epoch=epoch, method=method)
+        plt.plot(epoch, sse, label=method)
+    c1 = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
+    c2 = [41]
+    fileName = 'filter_count_3'
+    results = []
+    """
+    # endregion
 
     # for method in methods:
     model = trainingModel(dataset=IntelDataset(), method='xavier_normal', input_size=input_size,
-                          c_kernels=[30, 20], in_channels=[3, 3], out_channels=[3, 16])
+                          c_kernels=[7, 5, 5, 3, 3], in_channels=[3, 3, 32, 64, 86], out_channels=[3, 32, 64, 86, 128])
     sse, pk, e = model.training()
 
-    torch.save(model.cnn_model.state_dict(), 'model')
-    # model.load_state_dict(torch.load(PATH))
+    torch.save(model.cnn_model, 'model')
+
+    # region plots
     # plt.plot(range(e), sse, label=method)
 
     # np.savetxt("data_plots/" + fileName + ".csv", results, delimiter=";")
@@ -47,3 +52,4 @@ if __name__ == "__main__":
     # plt.ylabel("PK")
     # plt.legend(loc='upper left')
     # plt.show()
+    # endregion
