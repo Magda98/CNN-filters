@@ -217,6 +217,20 @@ class trainingModel():
                         filter_temp_tensor: Tensor = torch.stack(([gkern2d for _ in range(m.in_channels)]), 0)  # type:ignore
                         filter_tensor: Tensor = torch.stack(([filter_temp_tensor for _ in range(m.out_channels)]), 0)
                     m.weight.data = filter_tensor
+                elif method == 'sobel':
+                    temp: List[Tensor] = []
+                    for _ in range(m.out_channels):
+                        x: List[Tensor] = []
+                        for _ in range(m.in_channels):  # type:ignore
+                            gkern1d = np.array([[1,  2, 0, - 2, - 1],
+                                                [4,  8, 0, - 8, - 4],
+                                                [6, 12, 0, - 12, - 6],
+                                                [4,  8, 0, - 8, - 4],
+                                                [1,  2, 0, - 2, - 1]])
+                            gkern2d = torch.from_numpy(gkern1d/(m.out_channels + m.in_channels))
+                            x.append(gkern2d)
+                        temp.append(torch.stack([k for k in x], 0))
+                    filter_tensor: Tensor = torch.stack([k for k in temp], 0)
 
     def adaptive_leraning_rate(self):
         # self.sse = sum(self.loss_array)
