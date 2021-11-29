@@ -17,6 +17,13 @@
       "request": "launch",
       "program": "surface_plot.py",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "backprop-images",
+      "type": "python",
+      "request": "launch",
+      "program": "backprop_images.py",
+      "console": "integratedTerminal"
     }
   ]
 }

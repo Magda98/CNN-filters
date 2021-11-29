@@ -16,9 +16,9 @@ class Images():
     def __init__(self):
         def printgradnorm(module, grad_input, grad_output):
             self.gradients = (grad_input[0], grad_output[0])
-        model: CnnNet = torch.load('test_model_4')
+        model: CnnNet = torch.load('models/model')
         # model.eval()
-        model.cnn[2].register_full_backward_hook(printgradnorm)
+        model.cnn[0].register_full_backward_hook(printgradnorm)
 
         self.gradients = 0
 
@@ -66,10 +66,10 @@ class Images():
         # plt.imshow(img.permute(1, 2, 0),  cmap='gray')
         # plt.show()
         # Save image
-        # img = np.abs(np.int16(cv2.cvtColor(img.numpy(), cv2.COLOR_BGR2RGB)))
+        img = np.abs(np.int16(cv2.cvtColor(img.numpy(), cv2.COLOR_RGB2BGR)))
         # plt.imshow(img, vmin=0, vmax=255)
         # plt.show()
-        img = np.abs(img.numpy())
+        # img = np.abs(img.numpy())
         cv2.imwrite('./test.jpg',  img)
 
 
@@ -78,4 +78,4 @@ if __name__ == "__main__":
     generateImages = Images()
     generateImages.getSampleData()
 
-    generateImages.save_gradient_images(generateImages.gradients[0].cpu())
+    generateImages.save_gradient_images(generateImages.gradients[1].cpu())

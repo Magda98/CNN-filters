@@ -1,3 +1,4 @@
+import cv2
 from random import randint
 from random import seed
 from typing import List, Tuple
@@ -149,11 +150,6 @@ class trainingModel():
 
         fig.savefig('./output_images/sample_test_8/conv2/'+str(epoch)+'.png', dpi=300)
 
-        with open('./output_images/sample_test_8/readme.txt', 'w') as f:
-            for (index, pk) in enumerate(self.pk_cv):
-                f.write('pk'+str(index + 1) + ': ' + str(pk) + '\n')
-            f.write('pk: ' + str(self.current_pk) + '\n')
-
     def imshow2(self, conv1: Tensor, conv2: Tensor, features_map1: Tensor, features_map2: Tensor, image: npt.NDArray[np.float64], epoch: int):
         features_map1 = features_map1 - features_map1.min()
         features_map1 = features_map1 / features_map1.max()
@@ -164,17 +160,30 @@ class trainingModel():
         conv2 = conv2 - conv2.min()
         conv2 = conv2 / conv2.max()
 
+        conv1 = conv1 * 255
+        img = make_grid(conv1).numpy()
+        img = np.abs(img)
+        cv2.imwrite('./test.jpg', np.transpose(img, (1, 2, 0)))
+
         plt.rcParams['axes.grid'] = False  # type:ignore
 
-        fig, ax = plt.subplots(3, 1)  # type:ignore
-        [axi.set_axis_off() for axi in ax.ravel()]
-        image = np.transpose(image, (1, 2, 0))  # type:ignore
-        ax[0].imshow(image)
-        img = make_grid(conv1)
-        ax[1].imshow(img.permute(1, 2, 0))
-        img = make_grid(features_map1)
-        ax[2].imshow(img.permute(1, 2, 0), cmap='gray', vmin=0, vmax=1)
-        fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
+        # fig, ax = plt.subplots(2, 1)  # type:ignore
+        # [axi.set_axis_off() for axi in ax.ravel()]
+        # image = np.transpose(image, (1, 2, 0))  # type:ignore
+        # ax[0].imshow(image)
+        # img = make_grid(conv1)
+        # ax[1].imshow(img.permute(1, 2, 0))
+        # # img = make_grid(features_map1)
+        # # ax[2].imshow(img.permute(1, 2, 0), cmap='gray', vmin=0, vmax=1)
+        # fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
+
+    def saveFile(self):
+        with open('./output_images/sample_test_8/readme.txt', 'w') as f:
+            for (index, pk) in enumerate(self.pk_cv):
+                f.write('pk'+str(index + 1) + ': ' + str(pk) + '\n')
+            f.write('pk: ' + str(self.current_pk) + '\n')
+            if len(self.pk_cv):
+                f.write('pk_avg: ' + str(np.average(self.pk_cv)) + '\n')
 
     def gaussian_fn(self, M: int, std: int):
         n = torch.arange(0, M) - (M - 1.0) / 2.0
@@ -219,18 +228,19 @@ class trainingModel():
                     m.weight.data = filter_tensor
                 elif method == 'sobel':
                     temp: List[Tensor] = []
+                    gkern = torch.tensor([[1,  2, 0, - 2, - 1],
+                                          [4,  8, 0, - 8, - 4],
+                                          [6, 12, 0, - 12, - 6],
+                                          [4,  8, 0, - 8, - 4],
+                                          [1,  2, 0, - 2, - 1]], dtype=torch.float32)
                     for _ in range(m.out_channels):
                         x: List[Tensor] = []
                         for _ in range(m.in_channels):  # type:ignore
-                            gkern1d = np.array([[1,  2, 0, - 2, - 1],
-                                                [4,  8, 0, - 8, - 4],
-                                                [6, 12, 0, - 12, - 6],
-                                                [4,  8, 0, - 8, - 4],
-                                                [1,  2, 0, - 2, - 1]])
-                            gkern2d = torch.from_numpy(gkern1d/(m.out_channels + m.in_channels))
-                            x.append(gkern2d)
+                            gkern2 = gkern/(m.out_channels + m.in_channels)
+                            x.append(gkern2)
                         temp.append(torch.stack([k for k in x], 0))
                     filter_tensor: Tensor = torch.stack([k for k in temp], 0)
+                    m.weight.data = filter_tensor
 
     def adaptive_leraning_rate(self):
         # self.sse = sum(self.loss_array)
@@ -314,10 +324,12 @@ class trainingModel():
                 pk_test.append(pk)
                 self.adaptive_leraning_rate()
 
-                # if e % 10 == 0:
-                #     sample, image = self.getSampleData()
-                #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[2].weight.data.detach(  # type:ignore
-                #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
+                if e % 10 == 0:
+                    sample, image = self.getSampleData()
+                    self.imshow2(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
+                    ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
+
+                self.saveFile()
 
                 # increment epoch
                 e += 1
@@ -338,4 +350,6 @@ class trainingModel():
             if self.dataset.last:
                 run = False
         print(np.average(pk_test))
+        self.saveFile()
+
         return (self.sse_array, pk_test, e)
