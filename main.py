@@ -1,9 +1,9 @@
-import matplotlib.pyplot as plt
-import torch
-from training import trainingModel
-from intel_data import IntelDataset
-from sample_data import SampleDataset
 import seaborn as sns
+from sample_data import SampleDataset
+from intel_data import IntelDataset
+from training import trainingModel
+import torch
+import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
@@ -28,8 +28,8 @@ if __name__ == "__main__":
     # endregion
 
     # for method in methods:
-    model = trainingModel(dataset=IntelDataset(), method='sobel', input_size=input_size,
-                          c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 3, 32, 64, 86], out_channels=[3, 32, 64, 86, 128])
+    model = trainingModel(dataset=IntelDataset(), method='xavier_normal', input_size=input_size,
+                          c_kernels=[7, 5, 5, 5, 5], in_channels=[3, 3, 32, 64, 86], out_channels=[3, 32, 64, 86, 128])
     sse, pk, e = model.training()
 
     torch.save(model.cnn_model, 'model')
