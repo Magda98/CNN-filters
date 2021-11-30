@@ -28,8 +28,8 @@ if __name__ == "__main__":
     # endregion
 
     # for method in methods:
-    model = trainingModel(dataset=IntelDataset(), method='xavier_normal', input_size=input_size,
-                          c_kernels=[7, 5, 5, 5, 5], in_channels=[3, 3, 32, 64, 86], out_channels=[3, 32, 64, 86, 128])
+    model = trainingModel(dataset=IntelDataset(), method='sobel', input_size=input_size,
+                          c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128])
     sse, pk, e = model.training()
 
     torch.save(model.cnn_model, 'model')

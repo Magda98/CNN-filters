@@ -228,11 +228,29 @@ class trainingModel():
                     m.weight.data = filter_tensor
                 elif method == 'sobel':
                     temp: List[Tensor] = []
+                    rnd = torch.rand((5, 5))
                     gkern = torch.tensor([[1,  2, 0, - 2, - 1],
                                           [4,  8, 0, - 8, - 4],
                                           [6, 12, 0, - 12, - 6],
                                           [4,  8, 0, - 8, - 4],
                                           [1,  2, 0, - 2, - 1]], dtype=torch.float32)
+                    gkern = gkern * rnd
+                    for _ in range(m.out_channels):
+                        x: List[Tensor] = []
+                        for _ in range(m.in_channels):  # type:ignore
+                            rnd = randint(1, 1000) / 1000
+                            gkernx = gkern[torch.randperm(gkern.size()[0])]
+                            gkernx = gkernx[:, torch.randperm(gkernx.size()[1])]
+                            gkern2 = gkernx/(m.out_channels + m.in_channels) * rnd
+                            x.append(gkern2)
+                        temp.append(torch.stack([k for k in x], 0))
+                    filter_tensor: Tensor = torch.stack([k for k in temp], 0)
+                    m.weight.data = filter_tensor
+
+                elif method == "random":
+
+                    temp: List[Tensor] = []
+                    gkern = torch.rand((5, 5))
                     for _ in range(m.out_channels):
                         x: List[Tensor] = []
                         for _ in range(m.in_channels):  # type:ignore
@@ -326,10 +344,9 @@ class trainingModel():
 
                 if e % 10 == 0:
                     sample, image = self.getSampleData()
-                    self.imshow2(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
+                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
                     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
-
-                self.saveFile()
+                    self.saveFile()
 
                 # increment epoch
                 e += 1
