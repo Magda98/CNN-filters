@@ -7,13 +7,15 @@ import matplotlib.pyplot as plt
 import torch
 import numpy.typing as npt
 from torch.functional import Tensor
+from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
 from torch.nn.modules.module import Module
 from cnn import CnnNet
 import torch.nn as nn
 import matplotlib
 from intel_data import IntelDataset
 from torchvision.utils import make_grid
-matplotlib.use('Agg')
+import math
+# matplotlib.use('Agg')
 
 
 class trainingModel():
@@ -26,28 +28,17 @@ class trainingModel():
     @ input_size - size of image
     """
 
-    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
-        def printgradnorm(self, grad_input, grad_output):
-            print('Inside ' + self.__class__.__name__ + ' backward')
-            print('Inside class:' + self.__class__.__name__)
-            print('')
-            print('grad_input: ', type(grad_input))
-            print('grad_input[0]: ', type(grad_input[0]))
-            print('grad_output: ', type(grad_output))
-            print('grad_output[0]: ', type(grad_output[0]))
-            print('')
-            print('grad_input size:', grad_input[0].size())
-            print('grad_output size:', grad_output[0].size())
-            print('grad_input norm:', grad_input[0].norm())
+    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2], apt=0):
         seed(1)
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
         self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                 in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
 
-        # self.cnn_model.cnn[0].register_full_backward_hook(printgradnorm)
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
+        self.method = method
+        self.apt = apt
 
         self.criterion = nn.NLLLoss()
         self.lr = 0.00001
@@ -177,18 +168,39 @@ class trainingModel():
         # # ax[2].imshow(img.permute(1, 2, 0), cmap='gray', vmin=0, vmax=1)
         # fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
 
-    def saveFile(self):
-        with open('./output_images/sample_test_8/readme.txt', 'w') as f:
+    def saveFile(self, filename: str = 'readme'):
+        with open('./output_data/' + filename + '.txt', 'w') as f:
             for (index, pk) in enumerate(self.pk_cv):
                 f.write('pk'+str(index + 1) + ': ' + str(pk) + '\n')
             f.write('pk: ' + str(self.current_pk) + '\n')
             if len(self.pk_cv):
                 f.write('pk_avg: ' + str(np.average(self.pk_cv)) + '\n')
 
-    def gaussian_fn(self, M: int, std: int):
-        n = torch.arange(0, M) - (M - 1.0) / 2.0
-        sig2 = 2 * std * std
-        return torch.exp(-n ** 2 / sig2)
+    def xavier_uniform_M(self, tensor: Tensor, gain: float = 1., fac: float = 3.) -> Tensor:
+        r"""Fills the input `Tensor` with values according to the method
+        described in `Understanding the difficulty of training deep feedforward
+        neural networks` - Glorot, X. & Bengio, Y. (2010), using a uniform
+        distribution. The resulting tensor will have values sampled from
+        :math:`\mathcal{U}(-a, a)` where
+
+        .. math::
+            a = \text{gain} \times \sqrt{\frac{6}{\text{fan\_in} + \text{fan\_out}}}
+
+        Also known as Glorot initialization.
+
+        Args:
+            tensor: an n-dimensional `torch.Tensor`
+            gain: an optional scaling factor
+
+        Examples:
+            >>> w = torch.empty(3, 5)
+            >>> nn.init.xavier_uniform_(w, gain=nn.init.calculate_gain('relu'))
+        """
+        fan_in, fan_out = _calculate_fan_in_and_fan_out(tensor)
+        std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
+        a = math.sqrt(fac) * std  # Calculate uniform bounds from standard deviation
+
+        return _no_grad_uniform_(tensor, -a, a)
 
     def weights_init(self, m: Module, method: str):
         """
@@ -208,24 +220,12 @@ class trainingModel():
                     torch.nn.init.kaiming_uniform_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')  # type: ignore
                 elif method == 'xavier_uniform':
                     torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
+                elif method == 'xavier_uniform_M_2':
+                    self.xavier_uniform_M(m.weight, gain=1.0, fac=1.)
+                elif method == 'xavier_uniform_M_10':
+                    self.xavier_uniform_M(m.weight, gain=1.0, fac=5.)
                 elif method == 'xavier_normal':
                     torch.nn.init.xavier_normal_(m.weight, gain=1.0)
-                elif method == 'custom':
-                    if (m.kernel_size[0] != 3):
-                        temp: List[Tensor] = []
-                        for _ in range(m.out_channels):
-                            x: List[Tensor] = []
-                            for _ in range(m.in_channels):  # type:ignore
-                                gkern1d = self.gaussian_fn(m.kernel_size[0], randint(0, 256))
-                                gkern2d = torch.outer(gkern1d, gkern1d)
-                                x.append(gkern2d)
-                            temp.append(torch.stack([k for k in x], 0))
-                        filter_tensor: Tensor = torch.stack([k for k in temp], 0)
-                    else:
-                        gkern2d = torch.tensor([[-1, -1, -1], [-1, 8, -1], [-1, -1, -1]], dtype=torch.float32)
-                        filter_temp_tensor: Tensor = torch.stack(([gkern2d for _ in range(m.in_channels)]), 0)  # type:ignore
-                        filter_tensor: Tensor = torch.stack(([filter_temp_tensor for _ in range(m.out_channels)]), 0)
-                    m.weight.data = filter_tensor
                 elif method == 'sobel':
                     temp: List[Tensor] = []
                     rnd = torch.rand((5, 5))
@@ -242,19 +242,6 @@ class trainingModel():
                             gkernx = gkern[torch.randperm(gkern.size()[0])]
                             gkernx = gkernx[:, torch.randperm(gkernx.size()[1])]
                             gkern2 = gkernx/(m.out_channels + m.in_channels) * rnd
-                            x.append(gkern2)
-                        temp.append(torch.stack([k for k in x], 0))
-                    filter_tensor: Tensor = torch.stack([k for k in temp], 0)
-                    m.weight.data = filter_tensor
-
-                elif method == "random":
-
-                    temp: List[Tensor] = []
-                    gkern = torch.rand((5, 5))
-                    for _ in range(m.out_channels):
-                        x: List[Tensor] = []
-                        for _ in range(m.in_channels):  # type:ignore
-                            gkern2 = gkern/(m.out_channels + m.in_channels)
                             x.append(gkern2)
                         temp.append(torch.stack([k for k in x], 0))
                     filter_tensor: Tensor = torch.stack([k for k in temp], 0)
@@ -342,17 +329,17 @@ class trainingModel():
                 pk_test.append(pk)
                 self.adaptive_leraning_rate()
 
-                if e % 10 == 0:
-                    sample, image = self.getSampleData()
-                    self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
-                    ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
-                    self.saveFile()
+                # if e % 10 == 0:
+                #     sample, image = self.getSampleData()
+                #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
+                #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
+                #     self.saveFile()
 
                 # increment epoch
                 e += 1
                 epoch_per_k += 1
 
-                if epoch_per_k >= 10:
+                if epoch_per_k >= 20:
                     self.pk_cv.append(pk)
                     pk_flag = False
 
@@ -367,6 +354,6 @@ class trainingModel():
             if self.dataset.last:
                 run = False
         print(np.average(pk_test))
-        self.saveFile()
+        self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
 
         return (self.sse_array, pk_test, e)

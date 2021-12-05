@@ -32,6 +32,8 @@ class CnnNet(nn.Module):
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 16)
         self.fc4 = nn.Linear(16, output_size)
+        print("ilość klas: {}".format(output_size))
+        print("wielkość po warstawach conv: {}".format(size_out))
 
     def forward(self, inp: Tensor):  # type:ignore
         # out = self.cnn[1](F.relu(self.cnn[0](inp)))

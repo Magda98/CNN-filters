@@ -1,4 +1,6 @@
+import numpy as np
 import seaborn as sns
+from cifar_data import CifarDataset
 from sample_data import SampleDataset
 from intel_data import IntelDataset
 from training import trainingModel
@@ -12,9 +14,11 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # input image size in px (square image)
-    input_size = 150
+    input_size = 32
 
-    methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
+    # methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
+    # methods = ['kaiming_uniform', 'xavier_uniform', 'sobel']
+    methods = ["xavier_uniform_M_10", 'xavier_uniform', 'sobel']
     # region experiments loop
     """
     for method in methods:
@@ -27,12 +31,15 @@ if __name__ == "__main__":
     """
     # endregion
 
-    # for method in methods:
-    model = trainingModel(dataset=IntelDataset(), method='sobel', input_size=input_size,
-                          c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128])
-    sse, pk, e = model.training()
+    for method in methods:
+        for apt in range(1):
+            model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
+                                  c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, ], out_channels=[16, 32, 64, 86, 128], apt=apt)
+            sse, pk, e = model.training()
+            np.savetxt("data_plots/" + "cifar" + method + str(apt) + ".csv", sse, delimiter=";")
+        # plt.plot(range(e), sse, label=method)
 
-    torch.save(model.cnn_model, 'model')
+    # torch.save(model.cnn_model, 'model')
 
     # region plots
     # plt.plot(range(e), sse, label=method)
@@ -40,10 +47,10 @@ if __name__ == "__main__":
     # np.savetxt("data_plots/" + fileName + ".csv", results, delimiter=";")
 
     # e = list(range(len(sse)))
-    # plt.xlabel("Epoch")
-    # plt.ylabel("Loss")
-    # plt.legend(loc='upper left')
-    # plt.show()
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend(loc='upper left')
+    plt.show()
 
     # e = list(range(len(pk)))
     # plt.figure()
