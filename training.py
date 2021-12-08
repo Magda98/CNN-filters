@@ -41,7 +41,8 @@ class trainingModel():
         self.apt = apt
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.001
+        # self.lr = 0.001
+        self.lr = 0.00001
         self.er = 1.04
         self.lr_inc = 1.04
         self.lr_desc = 0.7
