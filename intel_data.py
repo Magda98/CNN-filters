@@ -59,6 +59,7 @@ class IntelDataset():
         # training dataset
         self.num_train = len(self.train_data)
         self.indices = list(range(self.num_train))
+
         self.buildings = self.indices[: 2190]
         self.forest = self.indices[2190: 4461]
         self.glacier = self.indices[4461: 6865]

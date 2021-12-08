@@ -28,10 +28,9 @@ class CnnNet(nn.Module):
                 self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0]))
                 size_out = math.floor((size_out + 2*0 - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
 
-        self.fc1 = nn.Linear(size_out*size_out * out_channels[-1], 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 16)
-        self.fc4 = nn.Linear(16, output_size)
+        self.fc1 = nn.Linear(size_out*size_out * out_channels[-1], 64)
+        self.fc2 = nn.Linear(64, 16)
+        self.fc3 = nn.Linear(16, output_size)
         print("ilość klas: {}".format(output_size))
         print("wielkość po warstawach conv: {}".format(size_out))
 
@@ -51,11 +50,10 @@ class CnnNet(nn.Module):
                     sample2 = out
             elif isinstance(l, nn.MaxPool2d):
                 out = l(out)
-
+        sample2 = sample1
         out = torch.flatten(out, 1)
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
-        out = F.relu(self.fc3(out))
         m = torch.nn.LogSoftmax(dim=1)
-        out = m(self.fc4(out))
+        out = m(self.fc3(out))
         return out, (sample1, sample2)

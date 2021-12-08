@@ -22,7 +22,7 @@ class CifarDataset():
         self.num_workers = 0
 
         # batch size
-        self.batch_size = 500
+        self.batch_size = 1000
 
         # k-fold validation (k=10)
         valid_size = 0.1
@@ -58,8 +58,6 @@ class CifarDataset():
         self.indices = list(range(self.num_train))
 
         # training dataset
-        self.num_train = len(self.train_data)
-        self.indices = list(range(self.num_train))
         self.airplane = self.indices[: 4999]
         self.automobile = self.indices[4999: 9999]
         self.bird = self.indices[9999: 14999]

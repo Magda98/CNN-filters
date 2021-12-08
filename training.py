@@ -41,7 +41,7 @@ class trainingModel():
         self.apt = apt
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.00001
+        self.lr = 0.001
         self.er = 1.04
         self.lr_inc = 1.04
         self.lr_desc = 0.7
@@ -224,16 +224,24 @@ class trainingModel():
                     self.xavier_uniform_M(m.weight, gain=1.0, fac=1.)
                 elif method == 'xavier_uniform_M_10':
                     self.xavier_uniform_M(m.weight, gain=1.0, fac=5.)
+                elif method == 'xavier_uniform_M_14':
+                    self.xavier_uniform_M(m.weight, gain=1.0, fac=7.)
+                elif method == 'xavier_uniform_M_20':
+                    self.xavier_uniform_M(m.weight, gain=1.0, fac=10.)
                 elif method == 'xavier_normal':
                     torch.nn.init.xavier_normal_(m.weight, gain=1.0)
                 elif method == 'sobel':
                     temp: List[Tensor] = []
-                    rnd = torch.rand((5, 5))
-                    gkern = torch.tensor([[1,  2, 0, - 2, - 1],
-                                          [4,  8, 0, - 8, - 4],
-                                          [6, 12, 0, - 12, - 6],
-                                          [4,  8, 0, - 8, - 4],
-                                          [1,  2, 0, - 2, - 1]], dtype=torch.float32)
+                    rnd = torch.rand((3, 3))
+                    gkern = torch.tensor([[1,  0, -1],
+                                          [2,  0, 2],
+                                          [1, 0, -1]], dtype=torch.float32)
+                    # gkern = torch.tensor([[1,  2, 0, - 2, - 1],
+                    #                       [4,  8, 0, - 8, - 4],
+                    #                       [6, 12, 0, - 12, - 6],
+                    #                       [4,  8, 0, - 8, - 4],
+                    #                       [1,  2, 0, - 2, - 1]], dtype=torch.float32)
+
                     gkern = gkern * rnd
                     for _ in range(m.out_channels):
                         x: List[Tensor] = []
@@ -354,6 +362,7 @@ class trainingModel():
             if self.dataset.last:
                 run = False
         print(np.average(pk_test))
-        self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
+        # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
+        self.saveFile(filename=(self.method + str(self.apt)))
 
         return (self.sse_array, pk_test, e)
