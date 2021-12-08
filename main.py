@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
     # methods = ['kaiming_uniform', 'xavier_uniform', 'sobel']
-    methods = ["xavier_uniform_M_2", "xavier_uniform_M_10"]
+    methods = ["xavier_uniform", "xavier_uniform_M_10"]
     # methods = ["xavier_uniform_M_14", "xavier_uniform_M_20"]
     # region experiments loop
     """
