@@ -18,8 +18,8 @@ if __name__ == "__main__":
 
     # methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
     # methods = ['kaiming_uniform', 'xavier_uniform', 'sobel']
-    methods = ["xavier_uniform", "xavier_uniform_M_10"]
-    # methods = ["xavier_uniform_M_14", "xavier_uniform_M_20"]
+    # methods = ["xavier_uniform", "xavier_uniform_M_10"]
+    methods = ["xavier_uniform_M_14", "xavier_uniform_M_20"]
     # region experiments loop
     """
     for method in methods:
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     #         torch.save(model.cnn_model, "models/" + "cifar" + method + str(apt))
 
     for method in methods:
-        for apt in range(1, 3):
+        for apt in range(2, 3, 1):
             model = trainingModel(dataset=IntelDataset(), method=method, input_size=input_size,
                                   c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt)
             sse, pk, e = model.training()
