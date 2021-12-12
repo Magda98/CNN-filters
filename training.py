@@ -229,6 +229,8 @@ class trainingModel():
                     self.xavier_uniform_M(m.weight, gain=1.0, fac=7.)
                 elif method == 'xavier_uniform_M_20':
                     self.xavier_uniform_M(m.weight, gain=1.0, fac=10.)
+                elif method == 'xavier_uniform_M_1':
+                    self.xavier_uniform_M(m.weight, gain=1.0, fac=0.5)
                 elif method == 'xavier_normal':
                     torch.nn.init.xavier_normal_(m.weight, gain=1.0)
                 elif method == 'sobel':
