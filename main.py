@@ -32,21 +32,21 @@ if __name__ == "__main__":
     """
     # endregion
 
-    # for method in methods:
-    #     for apt in range(4, 5):
-    #         model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
-    #                               c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt)
-    #         sse, pk, e = model.training()
-    #         np.savetxt("data_plots/" + "cifar" + method + str(apt) + ".csv", sse, delimiter=";")
-    #         torch.save(model.cnn_model, "models/" + "cifar" + method + str(apt))
-
     for method in methods:
         for apt in range(3):
             model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
-                                  c_kernels=[3, 3, 3], in_channels=[3, 16, 32, ], out_channels=[16, 32, 64], apt=apt)
+                                  c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt)
             sse, pk, e = model.training()
             np.savetxt("data_plots/" + "cifar" + method + str(apt) + ".csv", sse, delimiter=";")
             torch.save(model.cnn_model, "models/" + "cifar" + method + str(apt))
+
+    # for method in methods:
+    #     for apt in range(3):
+    #         model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
+    #                               c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt)
+    #         sse, pk, e = model.training()
+    #         np.savetxt("data_plots/"  + method + str(apt) + ".csv", sse, delimiter=";")
+    #         torch.save(model.cnn_model, "models/"  + method + str(apt))
         # plt.plot(range(e), sse, label=method)
 
     # region plots
