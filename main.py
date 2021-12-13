@@ -14,12 +14,12 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # input image size in px (square image)
-    input_size = 32
+    input_size = 150
 
     # methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
     # methods = ['kaiming_uniform', 'xavier_uniform', 'sobel']
     # methods = ["xavier_uniform", "xavier_uniform_M_10"]
-    methods = ["xavier_uniform_M_1"]
+    methods = ["xavier_uniform_M_2"]
     # region experiments loop
     """
     for method in methods:
@@ -32,22 +32,22 @@ if __name__ == "__main__":
     """
     # endregion
 
-    for method in methods:
-        for apt in range(3):
-            model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
-                                  c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt)
-            sse, pk, e = model.training()
-            np.savetxt("data_plots/" + "cifar" + method + str(apt) + ".csv", sse, delimiter=";")
-            torch.save(model.cnn_model, "models/" + "cifar" + method + str(apt))
-
     # for method in methods:
     #     for apt in range(3):
     #         model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
-    #                               c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt)
+    #                               c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt)
     #         sse, pk, e = model.training()
-    #         np.savetxt("data_plots/"  + method + str(apt) + ".csv", sse, delimiter=";")
-    #         torch.save(model.cnn_model, "models/"  + method + str(apt))
-        # plt.plot(range(e), sse, label=method)
+    #         np.savetxt("data_plots/" + "cifar" + method + str(apt) + ".csv", sse, delimiter=";")
+    #         torch.save(model.cnn_model, "models/" + "cifar" + method + str(apt))
+
+    for method in methods:
+        for apt in range(3, 4, 1):
+            model = trainingModel(dataset=IntelDataset(), method=method, input_size=input_size,
+                                  c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt)
+            sse, pk, e = model.training()
+            np.savetxt("data_plots/" + method + str(apt) + ".csv", sse, delimiter=";")
+            torch.save(model.cnn_model, "models/" + method + str(apt))
+        plt.plot(range(e), sse, label=method)
 
     # region plots
     # plt.plot(range(e), sse, label=method)

@@ -52,6 +52,8 @@ class CifarDataset():
         self.test_data = datasets.ImageFolder('./datasets/cifar10/test',
                                               transform=transform_test)
 
+        self.sample = DataLoader(datasets.ImageFolder('./datasets/cifar10/sample', transform=transform_test))
+
         self.k = 1
         # training dataset
         self.num_train = len(self.train_data)

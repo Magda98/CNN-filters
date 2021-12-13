@@ -9,7 +9,7 @@ import numpy.typing as npt
 from torch.functional import Tensor
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
 from torch.nn.modules.module import Module
-from cnnCifar import CnnNet
+from cnn import CnnNet
 import torch.nn as nn
 import matplotlib
 from intel_data import IntelDataset
@@ -42,7 +42,7 @@ class trainingModel():
 
         self.criterion = nn.NLLLoss()
         # self.lr = 0.001
-        self.lr = 0.001
+        self.lr = 0.00001
         self.er = 1.04
         self.lr_inc = 1.04
         self.lr_desc = 0.7
@@ -366,6 +366,6 @@ class trainingModel():
                 run = False
         print(np.average(pk_test))
         # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
-        self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
+        self.saveFile(filename=(self.method + str(self.apt)))
 
         return (self.sse_array, pk_test, e)

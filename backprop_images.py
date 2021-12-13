@@ -4,6 +4,8 @@ from torch.functional import Tensor
 from torch.utils.data import dataset
 from cnn import CnnNet
 from intel_data import IntelDataset
+from cifar_data import CifarDataset
+
 import numpy.typing as npt
 import numpy as np
 from torchvision.utils import make_grid
@@ -13,17 +15,19 @@ import cv2
 
 
 class Images():
-    def __init__(self):
+    def __init__(self, model_name):
         def printgradnorm(module, grad_input, grad_output):
             self.gradients = (grad_input[0], grad_output[0])
-        model: CnnNet = torch.load('models/model')
+        model: CnnNet = torch.load('models/'+model_name)
+
+        self.model_name = model_name
         # model.eval()
         model.cnn[0].register_full_backward_hook(printgradnorm)
 
         self.gradients = 0
 
         self.model = model
-        self.intel = IntelDataset()
+        self.intel = CifarDataset()
 
     def getSampleData(self) -> Tuple[Tensor, npt.NDArray[np.float64]]:
         model = self.model
@@ -59,23 +63,23 @@ class Images():
         # Normalize
         gradient = gradient - gradient.min()
         gradient /= gradient.max()
-        img = (gradient[0].permute(1, 2, 0) * 255)
+        img = (gradient.permute(1, 0, 2, 3) * 255)
         # grayscale_im = np.sum(np.abs(gradient[0].numpy()), axis=0)
         # gradient = gradient.permute(1, 0, 2, 3)
-        # img = make_grid(gradient)
+        img = make_grid(img)
         # plt.imshow(img.permute(1, 2, 0),  cmap='gray')
         # plt.show()
         # Save image
-        img = np.abs(np.int16(cv2.cvtColor(img.numpy(), cv2.COLOR_RGB2BGR)))
+        img = np.abs(np.int16(cv2.cvtColor(img.permute(1, 2, 0).numpy(), cv2.COLOR_RGB2BGR)))
         # plt.imshow(img, vmin=0, vmax=255)
         # plt.show()
         # img = np.abs(img.numpy())
-        cv2.imwrite('./test.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/gradients_map.jpg',  img)
 
 
 if __name__ == "__main__":
 
-    generateImages = Images()
+    generateImages = Images(model_name="cifarxavier_uniform_M_104")
     generateImages.getSampleData()
 
     generateImages.save_gradient_images(generateImages.gradients[1].cpu())
