@@ -22,6 +22,7 @@ Dataset contain 25k images of size 150px x 150px. Dataset has 6 classes:
 ### Cifar-10
 
 https://www.cs.toronto.edu/~kriz/cifar.html
+
 https://www.kaggle.com/swaroopkml/cifar10-pngs-in-folders
 
 Dataset contain 60k images of size 32px x 32px. Dataset has 10 classes:
