@@ -46,11 +46,10 @@ class CnnNet(nn.Module):
                 out = F.relu(l(out))
                 if i == 0:
                     sample1 = out
-                elif i == 1:
+                elif i == 2:
                     sample2 = out
             elif isinstance(l, nn.MaxPool2d):
                 out = l(out)
-        sample2 = sample1
         out = torch.flatten(out, 1)
         out = F.relu(self.fc1(out))
         out = F.relu(self.fc2(out))
