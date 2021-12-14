@@ -6,11 +6,11 @@ import torch
 import math
 
 
-class CnnNet(nn.Module):
+class CnnNetC(nn.Module):
     def __init__(self, input_size: int, output_size: int,  c_kernels: List[int] = [7, 5], in_channels: List[int] = [3, 6], out_channels: List[int] = [6, 16], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2]):
         """
         CNN class
-        * Architecture: Conv2d -> ReLu -> maxPool2d -> Conv2d -> ReLu -> maxPool2d -> fc1 -> fc2 -> fc3
+        * Architecture: Conv2d [3, 3] -> ReLu -> maxPool2d [2, 2] -> Conv2d [3, 3] -> ReLu -> fc1 -> fc2 -> fc3
         @ input_size - size of input image
         @ c_kernels - size of kernel in each conv2d layer
         @ in_channels, out_channels - define channels in each conv2d layer
@@ -35,11 +35,6 @@ class CnnNet(nn.Module):
         print("wielkość po warstawach conv: {}".format(size_out))
 
     def forward(self, inp: Tensor):  # type:ignore
-        # out = self.cnn[1](F.relu(self.cnn[0](inp)))
-        # sample1 = out
-
-        # out = self.cnn[3](F.relu(self.cnn[2](out)))
-        # sample2 = out
         out = inp
         for i, l in enumerate(self.cnn):
             if isinstance(l, nn.Conv2d):

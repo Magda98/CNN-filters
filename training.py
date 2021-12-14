@@ -10,6 +10,7 @@ from torch.functional import Tensor
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
 from torch.nn.modules.module import Module
 from cnn import CnnNet
+from cnnCifar import CnnNetC
 import torch.nn as nn
 import matplotlib
 from intel_data import IntelDataset
@@ -28,17 +29,23 @@ class trainingModel():
     @ input_size - size of image
     """
 
-    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2], apt=0):
+    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2], apt=0, dataset_name="intel"):
         seed(1)
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
-        self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
-                                in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+
+        if dataset_name == "intel":
+            self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+                                    in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+        elif dataset_name == "cifar":
+            self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
 
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
         self.method = method
         self.apt = apt
+        self.dataset_name = dataset_name
 
         self.criterion = nn.NLLLoss()
         # self.lr = 0.001
@@ -366,6 +373,6 @@ class trainingModel():
                 run = False
         print(np.average(pk_test))
         # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
-        self.saveFile(filename=(self.method + str(self.apt)))
+        self.saveFile(filename=(self.dataset_name+self.method + str(self.apt)))
 
         return (self.sse_array, pk_test, e)
