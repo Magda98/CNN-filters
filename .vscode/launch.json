@@ -24,6 +24,13 @@
       "request": "launch",
       "program": "backprop_images.py",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "plots",
+      "type": "python",
+      "request": "launch",
+      "program": "plots.py",
+      "console": "integratedTerminal"
     }
   ]
 }
