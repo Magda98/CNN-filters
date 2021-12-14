@@ -45,6 +45,5 @@ MaxPool2d:
 - [x] fix visualization
 - [x] experiment to choose best filters quantity
 - [x] implementation of custom inicialization of weights
-- [ ] experiment to choose best inicialization of weights
-- [ ] experiment to choose quantity of neurons in FC layers
+- [x] experiment to choose best inicialization of weights
 - [x] code refactor and comments
