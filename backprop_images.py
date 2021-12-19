@@ -1,11 +1,11 @@
-from typing import Tuple
+from typing import List, Tuple
 import torch
 from torch.functional import Tensor
 from torch.utils.data import dataset
 from cnn import CnnNet
 from intel_data import IntelDataset
 from cifar_data import CifarDataset
-
+from statistics import mean, stdev
 import numpy.typing as npt
 import numpy as np
 from torchvision.utils import make_grid
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 import cv2
 
 
-class Images():
+class Model():
     def __init__(self, model_name):
         def printgradnorm(module, grad_input, grad_output):
             self.gradients = (grad_input[0], grad_output[0])
@@ -27,11 +27,40 @@ class Images():
         self.gradients = 0
 
         self.model = model
-        self.intel = CifarDataset()
+        self.dataset = IntelDataset()
+
+    def valid_classification(self, out: Tensor, d: Tensor) -> float:
+        """
+        Function calculating valid classification
+        @ out - netowerk output
+        @ d - destination value
+        return: classification correctness in %
+        """
+        out = out.cpu().detach().numpy()
+        d = d.cpu().detach().numpy()
+        temp: List[float] = abs(d - out)
+        valid = sum(i < 0.5 for i in temp)
+        return valid / temp.shape[0] * 100  # type:ignore
+
+    def testModel(self):
+        self.loss_t = 0
+        criterion = nn.NLLLoss()
+        pk: List[float] = []
+        with torch.no_grad():
+            for data, labels in self.dataset.testloader:
+                labels = labels.cuda()
+                data = data.cuda()
+                out, _ = self.model(data)
+                output = torch.argmax(out, dim=1)
+                loss = criterion(out, labels)
+                self.loss_t += loss.cpu().item()
+                pk.append(self.valid_classification(output, labels))
+
+        return np.average(pk)  # type:ignore
 
     def getSampleData(self) -> Tuple[Tensor, npt.NDArray[np.float64]]:
         model = self.model
-        dataset = self.intel
+        dataset = self.dataset
         criterion = nn.NLLLoss()
         optimizer = torch.optim.AdamW(model.parameters(), lr=0.0001)
         i = 0
@@ -59,7 +88,6 @@ class Images():
             gradient (np arr): Numpy array of the gradient with shape (3, 224, 224)
             file_name (str): File name to be exported
         """
-
         # Normalize
         gradient = gradient - gradient.min()
         gradient /= gradient.max()
@@ -111,10 +139,14 @@ class Images():
 
 
 if __name__ == "__main__":
-
-    generateImages = Images(model_name="cifarxavier_uniform_M_200")
-    sample, image = generateImages.getSampleData()
-    generateImages.save_images(generateImages.model.cnn[0].weight.data.detach().cpu().clone(
-    ), generateImages.model.cnn[2].weight.data.detach().cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone())
+    x = []
+    for i in range(1, 4):
+        generateImages = Model(model_name="xavier_uniform_M_10" + str(i))
+        x.append(generateImages.testModel())
+    print(mean(x))
+    print(stdev(x))
+    # sample, image = generateImages.getSampleData()
+    # generateImages.save_images(generateImages.model.cnn[0].weight.data.detach().cpu().clone(
+    # ), generateImages.model.cnn[2].weight.data.detach().cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone())
 
     # generateImages.save_gradient_images(generateImages.gradients[1].cpu())

@@ -16,7 +16,6 @@ class CnnNet(nn.Module):
         @ in_channels, out_channels - define channels in each conv2d layer
         @ p_kernel - size od kernel in each maxPool2d layer
         @ p_stride - size of strine in maxPool2d layer
-        TODO: better way to get sample in forward function
         """
         super().__init__()
         self.cnn = nn.ModuleList()

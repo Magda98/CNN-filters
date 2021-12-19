@@ -14,9 +14,10 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # input image size in px (square image)
-    input_size = 150
-    dataset_name = "intel"
-    methods = ['orthogonal', 'kaiming_uniform', 'xavier_uniform', 'xavier_normal', 'custom']
+    input_size = 32
+    dataset_name = "cifar"
+    methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2']
+
     # region experiments loop
     """
     for method in methods:
@@ -25,13 +26,13 @@ if __name__ == "__main__":
     c1 = [1, 11, 21, 31, 41, 51, 61, 71, 81, 91, 101]
     c2 = [41]
     fileName = 'filter_count_3'
-    results = []
+    results = [
     """
     # endregion
 
     if dataset_name == "cifar":  # type: ignore
         for method in methods:
-            for apt in range(3):
+            for apt in range(5, 8):
                 model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
                                       c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt, dataset_name=dataset_name)
                 sse, pk, e = model.training()
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 
     elif dataset_name == "intel":
         for method in methods:
-            for apt in range(3):
+            for apt in range(3, 4, 1):
                 model = trainingModel(dataset=IntelDataset(), method=method, input_size=input_size,
                                       c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt, dataset_name=dataset_name)
                 sse, pk, e = model.training()

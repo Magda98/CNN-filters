@@ -46,8 +46,12 @@ Dataset contain 60k images of size 32px x 32px. Dataset has 10 classes:
 
 Convolutional neural network has fallowing structure for Intel Dataset: `Conv2d [5, 5] -> Conv2d [5, 5] -> Conv2d [5, 5] -> maxPool2d [2, 2] -> Conv2d [5, 5] -> Conv2d [5, 5] -> maxPool2d [2, 2] -> fc1 -> fc2 -> fc3 -> fc4`
 
+![image info](./doc/Cnn-Intel.png)
+
 and for Cifar-10 Dataset:
 `Conv2d [3, 3] -> maxPool2d [2, 2] -> Conv2d [3, 3] -> fc1 -> fc2 -> fc3`
+
+![image info](./doc/Cnn-Cifar.png)
 
 Purpose of this work is to find the most efficient way to train a neural network to get the best correctness of classification.
 Several experiments will be conducted to find the best parameters such as filters size and filters quanitity.
