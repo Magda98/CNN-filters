@@ -27,7 +27,7 @@ class Model():
         self.gradients = 0
 
         self.model = model
-        self.dataset = IntelDataset()
+        self.dataset = CifarDataset()
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """
@@ -140,8 +140,8 @@ class Model():
 
 if __name__ == "__main__":
     x = []
-    for i in range(1, 4):
-        generateImages = Model(model_name="xavier_uniform_M_10" + str(i))
+    for i in range(3):
+        generateImages = Model(model_name="cifarxavier_uniform_M_20" + str(i))
         x.append(generateImages.testModel())
     print(mean(x))
     print(stdev(x))

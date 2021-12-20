@@ -34,7 +34,7 @@ if __name__ == "__main__":
         for method in methods:
             for apt in range(5, 8):
                 model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
-                                      c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt, dataset_name=dataset_name)
+                                      c_kernels=[3, 3], in_channels=[3, 16], out_channels=[16, 32], apt=apt, dataset_name=dataset_name, epoch=200)
                 sse, pk, e = model.training()
                 np.savetxt("data_plots/" + dataset_name + method + str(apt) + ".csv", sse, delimiter=";")
                 torch.save(model.cnn_model, "models/" + dataset_name + method + str(apt))
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         for method in methods:
             for apt in range(3, 4, 1):
                 model = trainingModel(dataset=IntelDataset(), method=method, input_size=input_size,
-                                      c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt, dataset_name=dataset_name)
+                                      c_kernels=[5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt, dataset_name=dataset_name, epoch=200)
                 sse, pk, e = model.training()
                 np.savetxt("data_plots/" + method + str(apt) + ".csv", sse, delimiter=";")
                 torch.save(model.cnn_model, "models/" + method + str(apt))

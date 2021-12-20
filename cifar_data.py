@@ -22,7 +22,7 @@ class CifarDataset():
         self.num_workers = 0
 
         # batch size
-        self.batch_size = 1000
+        self.batch_size = 100
 
         # k-fold validation (k=10)
         valid_size = 0.1
@@ -124,15 +124,20 @@ class CifarDataset():
         self.train_idx, self.valid_idx = self.indices[self.split:], self.indices[:self.split]
 
         # create samplers
-        train_sampler = SubsetRandomSampler(self.train_idx)
+        train_samplerCV = SubsetRandomSampler(self.train_idx)
         valid_sampler = SubsetRandomSampler(self.valid_idx)
+        train_sampler = SubsetRandomSampler(self.indices)
 
         # dataloaders
-        trainloader = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
-                                 sampler=train_sampler,
-                                 num_workers=self.num_workers)
+        trainloaderCV = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
+                                   sampler=train_samplerCV,
+                                   num_workers=self.num_workers)
         validloader = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
                                  sampler=valid_sampler,
+                                 num_workers=self.num_workers)
+
+        trainloader = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
+                                 sampler=train_sampler,
                                  num_workers=self.num_workers)
         testloader = DataLoader(self.test_data, batch_size=self.batch_size,  # type:ignore
                                 num_workers=self.num_workers)
@@ -141,8 +146,10 @@ class CifarDataset():
         root = pathlib.Path('./datasets/cifar10/train/')
         self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
         print(self.classes)
-        self.trainloader = trainloader
+        self.trainloaderCV = trainloaderCV
         self.validloader = validloader
+
+        self.trainloader = trainloader
         self.testloader = testloader
 
     def get_chunks(self):
@@ -158,17 +165,17 @@ class CifarDataset():
                 (self.k-1)*self.split)], self.indices[((self.k-1)*self.split):]
             self.last_temp = True
 
-        train_sampler = SubsetRandomSampler(self.train_idx)
+        train_samplerCV = SubsetRandomSampler(self.train_idx)
         valid_sampler = SubsetRandomSampler(self.valid_idx)
 
-        trainloader = DataLoader(self.train_data, batch_size=self.batch_size,
-                                 sampler=train_sampler,
-                                 num_workers=self.num_workers)
+        trainloaderCV = DataLoader(self.train_data, batch_size=self.batch_size,
+                                   sampler=train_samplerCV,
+                                   num_workers=self.num_workers)
         validloader = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
                                  sampler=valid_sampler,
                                  num_workers=self.num_workers)
 
         print(self.k)
 
-        self.trainloader = trainloader
+        self.trainloaderCV = trainloaderCV
         self.validloader = validloader

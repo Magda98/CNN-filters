@@ -29,7 +29,7 @@ class trainingModel():
     @ input_size - size of image
     """
 
-    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2], apt=0, dataset_name="intel"):
+    def __init__(self, dataset, method: str, input_size: int, c_kernels: List[int] = [7, 5], out_channels: List[int] = [30, 16], in_channels: List[int] = [3, 30], p_kernel: List[int] = [2, 2], p_stride: List[int] = [2, 2], apt=0, dataset_name="intel", epoch=200):
         seed(1)
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
@@ -41,6 +41,7 @@ class trainingModel():
             self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                      in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
 
+        self.epoch = epoch
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
         self.method = method
@@ -300,7 +301,7 @@ class trainingModel():
         self.loss_t = 0
         pk: List[float] = []
         with torch.no_grad():
-            for data, labels in self.dataset.validloader:
+            for data, labels in self.dataset.testloader:
                 labels = labels.cuda()
                 data = data.cuda()
                 out, _ = self.cnn_model(data)
@@ -313,6 +314,71 @@ class trainingModel():
         return np.average(pk)  # type:ignore
 
     def training(self) -> Tuple[List[float], List[float], int]:
+        pk_test: List[float] = []
+        self.sse_array: List[float] = []
+        self.loss_test: List[float] = []
+        loss = 0
+        self.pk_cv: List[float] = []
+        self.current_pk = 0
+
+        for e in range(self.epoch):
+            self.loss_array = []
+            self.old_param = self.cnn_model.parameters
+
+           # pass through all data
+            for data, exp in self.dataset.trainloader:
+                exp = exp.cuda()
+                # pass data to cuda
+                data = data.cuda()
+                # Wyczyszczenie gradientów z poprzedniej epoki
+                self.optimizer.zero_grad()
+                out, sample = self.cnn_model(data)
+                loss = self.criterion(out, exp)
+                loss.backward()
+                self.optimizer.step()
+                self.loss_array.append(loss.item())
+
+            # Test
+            pk = self.test()
+            self.current_pk = pk
+            pk_test.append(pk)
+            self.adaptive_leraning_rate()
+
+            # if e % 10 == 0:
+            #     sample, image = self.getSampleData()
+            #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
+            #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
+            #     self.saveFile()
+
+            temp_lr: float = self.optimizer.param_groups[0]['lr']
+            print("pk: {:.2f} %".format(pk))
+            print("Learning rate: {:.10f}".format(temp_lr))
+            print('Epoch: {}.............'.format(e), end=' ')
+            print("Loss: {:.4f}".format(loss))
+
+        print(np.average(pk_test))
+        # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
+        self.saveFile(filename=(self.dataset_name+self.method + str(self.apt)))
+
+        return (self.sse_array, pk_test, self.epoch)
+
+    def testCV(self) -> float:
+        self.loss_t = 0
+        pk: List[float] = []
+        with torch.no_grad():
+            for data, labels in self.dataset.validloader:
+                labels = labels.cuda()
+                data = data.cuda()
+                out, _ = self.cnn_model(data)
+                output = torch.argmax(out, dim=1)
+                loss = self.criterion(out, labels)
+                self.loss_t += loss.cpu().item()
+                pk.append(self.valid_classification(output, labels))
+
+        self.loss_test.append(self.loss_t)
+        return np.average(pk)  # type:ignore
+
+    def trainingCV(self) -> Tuple[List[float], List[float], int]:
         e = 0
         pk_test: List[float] = []
         run = True
@@ -329,7 +395,7 @@ class trainingModel():
                 self.old_param = self.cnn_model.parameters
 
                 # pass through all data
-                for data, exp in self.dataset.trainloader:
+                for data, exp in self.dataset.trainloadeCVr:
                     exp = exp.cuda()
                     # pass data to cuda
                     data = data.cuda()
@@ -342,7 +408,7 @@ class trainingModel():
                     self.loss_array.append(loss.item())
 
                 # Test
-                pk = self.test()
+                pk = self.testCV()
                 self.current_pk = pk
                 pk_test.append(pk)
                 self.adaptive_leraning_rate()
