@@ -31,6 +31,13 @@
       "request": "launch",
       "program": "plots.py",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "ResNet",
+      "type": "python",
+      "request": "launch",
+      "program": "ResNetTest.py",
+      "console": "integratedTerminal"
     }
   ]
 }

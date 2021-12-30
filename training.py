@@ -65,8 +65,8 @@ class trainingModel():
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        # optimizer = torch.optim.SGD(cnn_model.parameters(), lr=lr,  momentum=0.9)
-        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
+        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """
@@ -268,7 +268,7 @@ class trainingModel():
 
     def adaptive_leraning_rate(self):
         # self.sse = sum(self.loss_array)
-        self.sse = self.loss_t
+        self.sse = self.loss_training
         self.sse_array.append(self.sse)
         lr: float = self.optimizer.param_groups[0]['lr']
         if self.sse > self.old_sse * self.er:
@@ -324,7 +324,7 @@ class trainingModel():
         for e in range(self.epoch):
             self.loss_array = []
             self.old_param = self.cnn_model.parameters
-
+            self.loss_training = 0
            # pass through all data
             for data, exp in self.dataset.trainloader:
                 exp = exp.cuda()
@@ -336,6 +336,7 @@ class trainingModel():
                 loss = self.criterion(out, exp)
                 loss.backward()
                 self.optimizer.step()
+                self.loss_training += loss.cpu().item()
                 self.loss_array.append(loss.item())
 
             # Test

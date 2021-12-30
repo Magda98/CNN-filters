@@ -35,15 +35,16 @@ class IntelDataset():
         # ! Add normalization
         transform_train = transforms.Compose([
             transforms.Resize((150, 150)),
-            # transforms.RandomHorizontalFlip(),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ColorJitter(0.3, 0.4, 0.4, 0.2),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205))
         ])
 
         transform_test = transforms.Compose([
             transforms.Resize((150, 150)),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205))
         ])
 
         # Load data from folders
@@ -119,7 +120,7 @@ class IntelDataset():
         trainloader = DataLoader(self.train_data, batch_size=self.batch_size,  # type:ignore
                                  sampler=train_sampler,
                                  num_workers=self.num_workers)
-        testloader = DataLoader(self.test_data, batch_size=self.batch_size,  # type:ignore
+        testloader = DataLoader(self.test_data,  # type:ignore
                                 num_workers=self.num_workers)
 
         # classes
