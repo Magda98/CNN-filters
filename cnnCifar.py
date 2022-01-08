@@ -23,7 +23,7 @@ class CnnNetC(nn.Module):
         for i, (k, c_in, c_out) in enumerate(zip(c_kernels, in_channels, out_channels)):
             self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k))
             size_out = math.floor((size_out + 2*0 - 1*(k-1) - 1)/1 + 1)
-            if i % 2 == 0 and i >= 0:
+            if i % 3 == 0 and i >= 0:
                 self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0]))
                 size_out = math.floor((size_out + 2*0 - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
 

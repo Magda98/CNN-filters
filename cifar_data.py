@@ -34,16 +34,18 @@ class CifarDataset():
         # * Horizontal flip - for augmentation
 
         transform_train = transforms.Compose([
-            transforms.Resize((32, 32)),
+            transforms.Resize((150, 150)),
             # transforms.RandomHorizontalFlip(),
+            transforms.RandomHorizontalFlip(p=0.5),
+            transforms.ColorJitter(0.3, 0.4, 0.4, 0.2),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205))
         ])
 
         transform_test = transforms.Compose([
-            transforms.Resize((32, 32)),
+            transforms.Resize((150, 150)),
             transforms.ToTensor(),
-            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205))
         ])
 
         # Load data from folders

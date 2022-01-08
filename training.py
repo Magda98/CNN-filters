@@ -38,9 +38,10 @@ class trainingModel():
             self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
         elif dataset_name == "cifar":
-            self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
-                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
-
+            # self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+            #                          in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+            self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+                                    in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
         self.epoch = epoch
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
@@ -49,7 +50,7 @@ class trainingModel():
         self.dataset_name = dataset_name
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.001
+        self.lr = 0.00001
         # self.lr = 0.00001
         self.er = 1.04
         self.lr_inc = 1.04
@@ -65,8 +66,8 @@ class trainingModel():
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
-        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        # self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
+        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """
@@ -177,13 +178,17 @@ class trainingModel():
         # # ax[2].imshow(img.permute(1, 2, 0), cmap='gray', vmin=0, vmax=1)
         # fig.savefig('./output_images/sample_test_8/conv1/'+str(epoch)+'.png', dpi=300)
 
-    def saveFile(self, filename: str = 'readme'):
+    def saveFileCV(self, filename: str = 'readme'):
         with open('./output_data/' + filename + '.txt', 'w') as f:
             for (index, pk) in enumerate(self.pk_cv):
                 f.write('pk'+str(index + 1) + ': ' + str(pk) + '\n')
             f.write('pk: ' + str(self.current_pk) + '\n')
             if len(self.pk_cv):
                 f.write('pk_avg: ' + str(np.average(self.pk_cv)) + '\n')
+
+    def saveFile(self, filename: str = 'readme'):
+        with open('./output_data/' + filename + '.txt', 'w') as f:
+            f.write('pk: ' + str(self.current_pk) + '\n')
 
     def xavier_uniform_M(self, tensor: Tensor, gain: float = 1., fac: float = 3.) -> Tensor:
         r"""Fills the input `Tensor` with values according to the method
