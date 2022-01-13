@@ -38,10 +38,10 @@ class trainingModel():
             self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
         elif dataset_name == "cifar":
-            # self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
-            #                          in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
-            self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
-                                    in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+            self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+            # self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
+            #                         in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
         self.epoch = epoch
         # weight initialization
         self.cnn_model.apply(lambda m: self.weights_init(m, method))
@@ -349,6 +349,9 @@ class trainingModel():
             self.current_pk = pk
             pk_test.append(pk)
             self.adaptive_leraning_rate()
+
+            # if pk > 60:
+            #     self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
 
             # if e % 10 == 0:
             #     sample, image = self.getSampleData()
