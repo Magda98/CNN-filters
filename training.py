@@ -50,7 +50,7 @@ class trainingModel():
         self.dataset_name = dataset_name
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.00001
+        self.lr = 0.001
         # self.lr = 0.00001
         self.er = 1.04
         self.lr_inc = 1.04
@@ -66,8 +66,8 @@ class trainingModel():
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        # self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
-        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
+        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """

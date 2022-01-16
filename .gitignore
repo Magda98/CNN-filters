@@ -5,3 +5,4 @@ __pycache__/data.cpython-38.pyc
 __pycache__/intel_data.cpython-38.pyc
 __pycache__/training.cpython-38.pyc
 models
+datasets
