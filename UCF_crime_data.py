@@ -48,9 +48,9 @@ class UCFCrimeDataset():
         ])
 
         # Load data from folders
-        self.train_data = datasets.ImageFolder('./datasets/crime/train',
+        self.train_data = datasets.ImageFolder('./datasets/pistol_classification',
                                                transform=transform_train)
-        self.test_data = datasets.ImageFolder('./datasets/crime/test',
+        self.test_data = datasets.ImageFolder('./datasets/pistol_classification',
                                               transform=transform_test)
 
         # training dataset
@@ -69,7 +69,7 @@ class UCFCrimeDataset():
                                 num_workers=self.num_workers)
 
         # classes
-        root = pathlib.Path('./datasets/crime/train')
+        root = pathlib.Path('./datasets/pistol_classification')
         self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
         print(self.classes)
 
