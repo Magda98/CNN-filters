@@ -14,11 +14,11 @@ if __name__ == "__main__":
     torch.cuda.empty_cache()
 
     # input image size in px (square image)
-    input_size = 32
-    dataset_name = "cifar"
+    input_size = 150
+    dataset_name = "intel"
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14']
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14', 'xavier_uniform_M_20']
-    methods = ['xavier_uniform']
+    methods = ['xavier_uniform_M_1']
     # region experiments loop
     """
     for method in methods:
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     if dataset_name == "cifar":  # type: ignore
         for method in methods:
-            for apt in range(10, 13):
+            for apt in range(11, 12):
                 model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
                                       c_kernels=[3, 3, 3, 3, 3, 3], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt, dataset_name=dataset_name, epoch=200)
                 sse, pk, e = model.training()

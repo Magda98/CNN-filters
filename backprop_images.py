@@ -28,6 +28,7 @@ class Model():
 
         self.model = model
         self.dataset = CifarDataset()
+        # self.dataset = IntelDataset()
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """
@@ -102,7 +103,7 @@ class Model():
         # plt.imshow(img, vmin=0, vmax=255)
         # plt.show()
         # img = np.abs(img.numpy())
-        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/gradients_map.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-2]+'/gradients_map.jpg',  img)
 
     def save_images(self, conv1: Tensor, conv2: Tensor, features_map1: Tensor, features_map2: Tensor):
         conv1 = conv1 - conv1.min()
@@ -112,7 +113,7 @@ class Model():
         img = torch.unsqueeze(img, 0)
         img = make_grid(img.permute(1, 0, 2, 3), nrow=1)
         img = np.abs(np.int16(cv2.cvtColor(img.permute(1, 2, 0).numpy(), cv2.COLOR_RGB2BGR)))
-        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/filters_1.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-2]+'/filters_1.jpg',  img)
 
         conv2 = conv2 - conv2.min()
         conv2 /= conv2.max()
@@ -121,32 +122,34 @@ class Model():
         img = torch.unsqueeze(img, 0)
         img = make_grid(img.permute(1, 0, 2, 3), nrow=1)
         img = np.abs(np.int16(cv2.cvtColor(img.permute(1, 2, 0).numpy(), cv2.COLOR_RGB2BGR)))
-        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/filters_2.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-2]+'/filters_2.jpg',  img)
 
         features_map1 = features_map1 - features_map1.min()
         features_map1 /= features_map1.max()
         img = (features_map1.permute(1, 0, 2, 3) * 255)
         img = make_grid(img)
         img = np.abs(np.int16(cv2.cvtColor(img.permute(1, 2, 0).numpy(), cv2.COLOR_RGB2BGR)))
-        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/features_map_1.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-2]+'/features_map_1.jpg',  img)
 
         features_map2 = features_map2 - features_map2.min()
         features_map2 /= features_map2.max()
         img = (features_map2.permute(1, 0, 2, 3) * 255)
         img = make_grid(img)
         img = np.abs(np.int16(cv2.cvtColor(img.permute(1, 2, 0).numpy(), cv2.COLOR_RGB2BGR)))
-        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-1]+'/features_map_2.jpg',  img)
+        cv2.imwrite('./output_images/weight_init/' + self.model_name[:-2]+'/features_map_2.jpg',  img)
 
 
 if __name__ == "__main__":
     x = []
-    for i in range(3):
+    for i in range(10, 13):
         generateImages = Model(model_name="cifarxavier_uniform_M_20" + str(i))
         x.append(generateImages.testModel())
+        generateImages.getSampleData()
+        generateImages.save_gradient_images(generateImages.gradients[1].cpu().detach())
+        sample, image = generateImages.getSampleData()
+        generateImages.save_images(generateImages.model.cnn[0].weight.data.detach().cpu().clone(
+        ), generateImages.model.cnn[2].weight.data.detach().cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone())
+
+        generateImages.save_gradient_images(generateImages.gradients[1].cpu())
     print(mean(x))
     print(stdev(x))
-    # sample, image = generateImages.getSampleData()
-    # generateImages.save_images(generateImages.model.cnn[0].weight.data.detach().cpu().clone(
-    # ), generateImages.model.cnn[2].weight.data.detach().cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone())
-
-    # generateImages.save_gradient_images(generateImages.gradients[1].cpu())
