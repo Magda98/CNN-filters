@@ -11,6 +11,7 @@ import numpy as np
 from torchvision.utils import make_grid
 import torch.nn as nn
 import matplotlib.pyplot as plt
+from pytorch_model_summary import summary
 import cv2
 
 
@@ -19,7 +20,7 @@ class Model():
         def printgradnorm(module, grad_input, grad_output):
             self.gradients = (grad_input[0], grad_output[0])
         model: CnnNet = torch.load('models/'+model_name)
-
+        print(summary(model, torch.zeros((3, 3, 150, 150)).cuda(), show_input=True))
         self.model_name = model_name
         # model.eval()
         model.cnn[0].register_full_backward_hook(printgradnorm)
@@ -27,8 +28,8 @@ class Model():
         self.gradients = 0
 
         self.model = model
-        self.dataset = CifarDataset()
-        # self.dataset = IntelDataset()
+        # self.dataset = CifarDataset()
+        self.dataset = IntelDataset()
 
     def valid_classification(self, out: Tensor, d: Tensor) -> float:
         """
@@ -142,7 +143,7 @@ class Model():
 if __name__ == "__main__":
     x = []
     for i in range(10, 13):
-        generateImages = Model(model_name="cifarxavier_uniform_M_20" + str(i))
+        generateImages = Model(model_name="xavier_uniform_M_20" + str(i))
         x.append(generateImages.testModel())
         generateImages.getSampleData()
         generateImages.save_gradient_images(generateImages.gradients[1].cpu().detach())
