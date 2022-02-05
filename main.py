@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_name = "intel"
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14']
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14', 'xavier_uniform_M_20']
-    methods = ['xavier_uniform_M_1']
+    methods = ['kaiming_uniform']
     # region experiments loop
     """
     for method in methods:
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                 torch.save(model.cnn_model, "models/" + dataset_name + method + str(apt))
     elif dataset_name == "intel":
         for method in methods:
-            for apt in range(10, 13, 1):
+            for apt in range(13, 14, 1):
                 model = trainingModel(dataset=IntelDataset(), method=method, input_size=input_size,
                                       c_kernels=[5, 5, 5, 5, 5, 5, 5], in_channels=[3, 16, 32, 64, 86, 128, 128, 128], out_channels=[16, 32, 64, 86, 128, 128, 128], apt=apt, dataset_name=dataset_name, epoch=200)
                 sse, pk, e = model.training()

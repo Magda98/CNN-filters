@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import torch
 import numpy.typing as npt
 from torch.functional import Tensor
-from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
+from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_,  _calculate_correct_fan, calculate_gain
 from torch.nn.modules.module import Module
 from cnn import CnnNet
 from cnnCifar import CnnNetC
@@ -216,6 +216,17 @@ class trainingModel():
 
         return _no_grad_uniform_(tensor, -a, a)
 
+    def kaiming_uniform_M(tensor, a=0, mode='fan_in', nonlinearity='relu'):
+        # if 0 in tensor.shape:
+        #     warnings.warn("Initializing zero-element tensors is a no-op")
+        #     return tensor
+        fan = _calculate_correct_fan(tensor, mode)
+        gain = calculate_gain(nonlinearity, a)
+        std = gain / math.sqrt(fan)
+        bound = math.sqrt(3.0) * std  # Calculate uniform bounds from standard deviation
+        with torch.no_grad():
+            return tensor.uniform_(-bound, bound)
+
     def weights_init(self, m: Module, method: str):
         """
         Function for filters initialization
@@ -231,7 +242,7 @@ class trainingModel():
                 if method == 'orthogonal':
                     torch.nn.init.orthogonal_(m.weight)  # type: ignore
                 elif method == 'kaiming_uniform':
-                    torch.nn.init.kaiming_uniform_(m.weight, a=0, mode='fan_in', nonlinearity='leaky_relu')  # type: ignore
+                    torch.nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')  # type: ignore
                 elif method == 'xavier_uniform':
                     torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
                 elif method == 'xavier_uniform_M_2':
