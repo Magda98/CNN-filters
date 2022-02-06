@@ -216,14 +216,15 @@ class trainingModel():
 
         return _no_grad_uniform_(tensor, -a, a)
 
-    def kaiming_uniform_M(tensor, a=0, mode='fan_in', nonlinearity='relu'):
+    def kaiming_uniform_M(tensor, a=0, mode='fan_in', nonlinearity='relu', M=1.0):
         # if 0 in tensor.shape:
         #     warnings.warn("Initializing zero-element tensors is a no-op")
         #     return tensor
         fan = _calculate_correct_fan(tensor, mode)
         gain = calculate_gain(nonlinearity, a)
+        # ReLU gain = :math:`\sqrt{2}`
         std = gain / math.sqrt(fan)
-        bound = math.sqrt(3.0) * std  # Calculate uniform bounds from standard deviation
+        bound = math.sqrt(M) * std  # Calculate uniform bounds from standard deviation
         with torch.no_grad():
             return tensor.uniform_(-bound, bound)
 
@@ -238,11 +239,21 @@ class trainingModel():
         with torch.no_grad():
             if isinstance(m, nn.Conv2d):
                 torch.nn.init.normal_(m.bias)  # type:ignore
-
+                # „fan_in” (domyślnie) zachowuje wielkość wariancji wag w przebiegu do przodu
                 if method == 'orthogonal':
                     torch.nn.init.orthogonal_(m.weight)  # type: ignore
                 elif method == 'kaiming_uniform':
                     torch.nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')  # type: ignore
+                elif method == 'kaiming_uniform_M_1':
+                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=0.5)  # type: ignore
+                elif method == 'kaiming_uniform_M_2':
+                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=1.0)  # type: ignore
+                elif method == 'kaiming_uniform_M_10':
+                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=5.0)  # type: ignore
+                elif method == 'kaiming_uniform_M_14':
+                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=7.0)  # type: ignore
+                elif method == 'kaiming_uniform_M_20':
+                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=10.0)  # type: ignore
                 elif method == 'xavier_uniform':
                     torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
                 elif method == 'xavier_uniform_M_2':
@@ -361,15 +372,6 @@ class trainingModel():
             pk_test.append(pk)
             self.adaptive_leraning_rate()
 
-            # if pk > 60:
-            #     self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
-
-            # if e % 10 == 0:
-            #     sample, image = self.getSampleData()
-            #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
-            #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
-            #     self.saveFile()
-
             temp_lr: float = self.optimizer.param_groups[0]['lr']
             print("pk: {:.2f} %".format(pk))
             print("Learning rate: {:.10f}".format(temp_lr))
@@ -377,88 +379,6 @@ class trainingModel():
             print("Loss: {:.4f}".format(loss))
 
         print(np.average(pk_test))
-        # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
         self.saveFile(filename=(self.dataset_name+self.method + str(self.apt)))
 
-        return (self.sse_array, pk_test, self.epoch)
-
-    def testCV(self) -> float:
-        self.loss_t = 0
-        pk: List[float] = []
-        with torch.no_grad():
-            for data, labels in self.dataset.validloader:
-                labels = labels.cuda()
-                data = data.cuda()
-                out, _ = self.cnn_model(data)
-                output = torch.argmax(out, dim=1)
-                loss = self.criterion(out, labels)
-                self.loss_t += loss.cpu().item()
-                pk.append(self.valid_classification(output, labels))
-
-        self.loss_test.append(self.loss_t)
-        return np.average(pk)  # type:ignore
-
-    def trainingCV(self) -> Tuple[List[float], List[float], int]:
-        e = 0
-        pk_test: List[float] = []
-        run = True
-        pk_flag = True
-        self.sse_array: List[float] = []
-        self.loss_test: List[float] = []
-        loss = 0
-        self.pk_cv: List[float] = []
-        self.current_pk = 0
-        while run:
-            epoch_per_k = 0
-            while pk_flag:
-                self.loss_array = []
-                self.old_param = self.cnn_model.parameters
-
-                # pass through all data
-                for data, exp in self.dataset.trainloadeCVr:
-                    exp = exp.cuda()
-                    # pass data to cuda
-                    data = data.cuda()
-                    # Wyczyszczenie gradientów z poprzedniej epoki
-                    self.optimizer.zero_grad()
-                    out, sample = self.cnn_model(data)
-                    loss = self.criterion(out, exp)
-                    loss.backward()
-                    self.optimizer.step()
-                    self.loss_array.append(loss.item())
-
-                # Test
-                pk = self.testCV()
-                self.current_pk = pk
-                pk_test.append(pk)
-                self.adaptive_leraning_rate()
-
-                # if e % 10 == 0:
-                #     sample, image = self.getSampleData()
-                #     self.imshow(self.cnn_model.cnn[0].weight.data.detach().cpu().clone(), self.cnn_model.cnn[1].weight.data.detach(  # type:ignore
-                #     ).cpu().clone(), sample[0].detach().cpu().clone(), sample[1].detach().cpu().clone(), image, e)
-                #     self.saveFile()
-
-                # increment epoch
-                e += 1
-                epoch_per_k += 1
-
-                if epoch_per_k >= 20:
-                    self.pk_cv.append(pk)
-                    pk_flag = False
-
-                temp_lr: float = self.optimizer.param_groups[0]['lr']
-                print("pk: {:.2f} %".format(pk))
-                print("Learning rate: {:.10f}".format(temp_lr))
-                print('Epoch: {}.............'.format(e), end=' ')
-                print("Loss: {:.4f}".format(loss))
-
-            self.dataset.get_chunks()
-            pk_flag = True
-            if self.dataset.last:
-                run = False
-        print(np.average(pk_test))
-        # self.saveFile(filename=(self.method + "cifar" + str(self.apt)))
-        self.saveFile(filename=(self.dataset_name+self.method + str(self.apt)))
-
-        return (self.sse_array, pk_test, e)
+        return (self.sse_array, self.loss_test, pk_test, self.epoch)
