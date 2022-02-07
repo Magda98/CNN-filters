@@ -216,7 +216,7 @@ class trainingModel():
 
         return _no_grad_uniform_(tensor, -a, a)
 
-    def kaiming_uniform_M(tensor, a=0, mode='fan_in', nonlinearity='relu', M=1.0):
+    def kaiming_uniform_M(self, tensor, a=0, mode='fan_in', nonlinearity='relu', M=1.0):
         # if 0 in tensor.shape:
         #     warnings.warn("Initializing zero-element tensors is a no-op")
         #     return tensor
@@ -245,15 +245,15 @@ class trainingModel():
                 elif method == 'kaiming_uniform':
                     torch.nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')  # type: ignore
                 elif method == 'kaiming_uniform_M_1':
-                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=0.5)  # type: ignore
+                    self.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=0.5)  # type: ignore
                 elif method == 'kaiming_uniform_M_2':
-                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=1.0)  # type: ignore
+                    self.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=1.0)  # type: ignore
                 elif method == 'kaiming_uniform_M_10':
-                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=5.0)  # type: ignore
+                    self.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=5.0)  # type: ignore
                 elif method == 'kaiming_uniform_M_14':
-                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=7.0)  # type: ignore
+                    self.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=7.0)  # type: ignore
                 elif method == 'kaiming_uniform_M_20':
-                    torch.nn.init.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=10.0)  # type: ignore
+                    self.kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=10.0)  # type: ignore
                 elif method == 'xavier_uniform':
                     torch.nn.init.xavier_uniform_(m.weight, gain=1.0)
                 elif method == 'xavier_uniform_M_2':

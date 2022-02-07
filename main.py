@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_name = "cifar"
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14']
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14', 'xavier_uniform_M_20']
-    methods = ['kaiming_uniform', 'kaiming_uniform_M_1', 'kaiming_uniform_M_2', 'kaiming_uniform_M_10', 'kaiming_uniform_M_14', 'kaiming_uniform_M_20']
+    methods = ['kaiming_uniform_M_1', 'kaiming_uniform_M_2', 'kaiming_uniform_M_10', 'kaiming_uniform_M_14', 'kaiming_uniform_M_20']
     # region experiments loop
     """
     for method in methods:
