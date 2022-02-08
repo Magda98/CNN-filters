@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_name = "cifar"
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14']
     # methods = ['xavier_uniform', 'xavier_uniform_M_10', 'xavier_uniform_M_2', 'xavier_uniform_M_1', 'xavier_uniform_M_14', 'xavier_uniform_M_20']
-    methods = ['kaiming_uniform_M_1', 'kaiming_uniform_M_2', 'kaiming_uniform_M_10', 'kaiming_uniform_M_14', 'kaiming_uniform_M_20']
+    methods = ['kaiming_uniform_M_20']
     # region experiments loop
     """
     for method in methods:
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     if dataset_name == "cifar":  # type: ignore
         for method in methods:
-            for apt in range(3):
+            for apt in range(1, 2):
                 model = trainingModel(dataset=CifarDataset(), method=method, input_size=input_size,
                                       c_kernels=[3, 3, 3, 3, 3, 3], in_channels=[3, 16, 32, 64, 86], out_channels=[16, 32, 64, 86, 128], apt=apt, dataset_name=dataset_name, epoch=200)
                 sse, sse_t, pk, e = model.training()

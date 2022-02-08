@@ -4,6 +4,7 @@ from typing import List
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 from torch.utils.data.sampler import SubsetRandomSampler
+from torch.utils.data import random_split
 from torchvision import datasets
 import torch
 import numpy as np
@@ -48,28 +49,38 @@ class WeaponData():
         ])
 
         # Load data from folders
-        self.train_data = datasets.ImageFolder('./datasets/weapon',
-                                               transform=transform_train)
-        self.test_data = datasets.ImageFolder('./datasets/weapon',
-                                              transform=transform_test)
+        self.data = datasets.ImageFolder('./datasets/pistol_classification/', transform=transform_train)
 
-        # training dataset
-        self.num_train = len(self.train_data)
-        self.indices = list(range(self.num_train))
+        n_train_c1 = int(0.8 * 9062)
+        n_train_c2 = int(0.8 * 795)
+
+        num_train = len(self.data)
+        self.indices = list(range(num_train))
+        self.c1 = self.indices[:9061]
+        self.c2 = self.indices[9061:]
+
+        self.train_idx = self.c1[: n_train_c1]
+        del self.c1[0: n_train_c1]
+        self.train_idx.extend(self.c2[: n_train_c2])
+        del self.c2[0: n_train_c2]
+
+        self.test_idx = self.c1
+        self.test_idx.extend(self.c2)
 
         # create samplers
-        train_sampler = SubsetRandomSampler(self.indices)
+        train_sampler = SubsetRandomSampler(self.train_idx)
+        test_sampler = SubsetRandomSampler(self.test_idx)
 
         # dataloaders
 
-        trainloader = DataLoader(self.train_data, batch_size=self.batch_size,
+        trainloader = DataLoader(self.data, batch_size=self.batch_size,
                                  sampler=train_sampler,
                                  num_workers=self.num_workers)
-        testloader = DataLoader(self.test_data, batch_size=self.batch_size,
-                                num_workers=self.num_workers)
+        testloader = DataLoader(self.data, batch_size=self.batch_size,
+                                num_workers=self.num_workers, sampler=test_sampler)
 
         # classes
-        root = pathlib.Path('./datasets/weapon')
+        root = pathlib.Path('./datasets/pistol_classification')
         self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
         print(self.classes)
 
