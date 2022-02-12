@@ -1,6 +1,7 @@
 # Filters, features map and gradient visualization in CNN
 
 Input image:
+
 ![image info](./doc/0.jpg)
 
 Features map:
