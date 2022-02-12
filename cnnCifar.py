@@ -37,7 +37,7 @@ class CnnNetC(nn.Module):
         out = inp
         for i, l in enumerate(self.cnn):
             if isinstance(l, nn.Conv2d):
-                out = F.relu(l(out))
+                out = torch.tanh(l(out))
                 if i == 0:
                     sample1 = out
                 elif i == 2:
