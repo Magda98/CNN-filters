@@ -1,15 +1,3 @@
-# Filters, features map and gradient visualization in CNN
-
-Input image:
-
-![image info](./doc/0.jpg)
-
-Features map:
-![image info](./doc/features_map_1.jpg)
-
-Gradients:
-![image info](./doc/gradients_map.jpg)
-
 ## Datasets
 
 ### Intel Image Classification
@@ -62,13 +50,11 @@ and for Cifar-10 Dataset:
 
 ![image info](./doc/Cnn-Cifar.svg)
 
-Purpose of this work is to find the most efficient way to train a neural network to get the best accuracy.
+Purpose of this project is to find the most efficient way to train a neural network to get the best accuracy.
 Several experiments will be conducted to find the best parameters such as filters size and filters quantity.
-There will be also examined influence of kernels initialization to correctness of classification.
+There will be also examined influence of kernels initialization (Xavier Initialization and modified Xavier Initialization) to accuracy.
 
-There also will be implemented filters and features map visualization.
-
-How to calculate Conv2d out size and MaxPool2d out size:
+How to calculate Conv2d Layer out size and MaxPool2d Layer out size:
 
 Conv2d:
 
@@ -78,6 +64,18 @@ MaxPool2d:
 
 ![image info](./doc/maxpool2d_out.png)
 
+# Filters, features map and gradient visualization in CNN
+
+Input image:
+
+![image info](./doc/0.jpg)
+
+Features map:
+![image info](./doc/features_map_1.jpg)
+
+Gradients:
+![image info](./doc/gradients_map.jpg)
+
 ## SHapley analysis
 
 "SHAP (SHapley Additive exPlanations) is a game theoretic approach to explain the output of any machine learning model. It connects optimal credit allocation with local explanations using the classic Shapley values from game theory and their related extensions"
@@ -86,4 +84,4 @@ https://github.com/slundberg/shap
 
 ## ToDo
 
-- [] SHapley analysis
+- [ ] SHapley analysis
