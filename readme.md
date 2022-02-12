@@ -1,4 +1,13 @@
-# Filters vizualization in CNN
+# Filters, features map and gradient visualization in CNN
+
+Input image:
+![image info](./doc/0.jpg)
+
+Features map:
+![image info](./doc/features_map_1.jpg)
+
+Gradients:
+![image info](./doc/gradients_map.jpg)
 
 ## Datasets
 
@@ -44,20 +53,19 @@ Dataset contain 60k images of size 32px x 32px. Dataset has 10 classes:
 
 ## CNN
 
-Convolutional neural network has fallowing structure for Intel Dataset: `Conv2d [5, 5] -> Conv2d [5, 5] -> Conv2d [5, 5] -> maxPool2d [2, 2] -> Conv2d [5, 5] -> Conv2d [5, 5] -> maxPool2d [2, 2] -> fc1 -> fc2 -> fc3 -> fc4`
+Convolutional neural network has fallowing structure for Intel Dataset:
 
-![image info](./doc/Cnn-Intel.png)
+![image info](./doc/Cnn-Intel.svg)
 
 and for Cifar-10 Dataset:
-`Conv2d [3, 3] -> maxPool2d [2, 2] -> Conv2d [3, 3] -> fc1 -> fc2 -> fc3`
 
-![image info](./doc/Cnn-Cifar.png)
+![image info](./doc/Cnn-Cifar.svg)
 
-Purpose of this work is to find the most efficient way to train a neural network to get the best correctness of classification.
-Several experiments will be conducted to find the best parameters such as filters size and filters quanitity.
-There will be also examinated influence of kernels initialization to correctness of classification.
+Purpose of this work is to find the most efficient way to train a neural network to get the best accuracy.
+Several experiments will be conducted to find the best parameters such as filters size and filters quantity.
+There will be also examined influence of kernels initialization to correctness of classification.
 
-There also will be implemented filters and features map vizualization.
+There also will be implemented filters and features map visualization.
 
 How to calculate Conv2d out size and MaxPool2d out size:
 
@@ -69,11 +77,12 @@ MaxPool2d:
 
 ![image info](./doc/maxpool2d_out.png)
 
+## SHapley analysis
+
+"SHAP (SHapley Additive exPlanations) is a game theoretic approach to explain the output of any machine learning model. It connects optimal credit allocation with local explanations using the classic Shapley values from game theory and their related extensions"
+
+https://github.com/slundberg/shap
+
 ## ToDo
 
-- [x] crossvalidation
-- [x] fix visualization
-- [x] experiment to choose best filters quantity
-- [x] implementation of custom inicialization of weights
-- [x] experiment to choose best inicialization of weights
-- [x] code refactor and comments
+- [SHapley analysis]
