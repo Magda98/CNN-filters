@@ -62,7 +62,7 @@ class TrainModel():
                 data = data.cuda()
                 # Wyczyszczenie gradientów z poprzedniej epoki
                 self.optimizer.zero_grad()
-                out, sample = self.cnn_model(data)
+                out = self.cnn_model(data)
                 loss = self.criterion(out, exp)
                 loss.backward()
                 self.optimizer.step()

@@ -32,7 +32,7 @@ def test(dataset, model, criterion):
         for data, labels in dataset.testloader:
             labels = labels.cuda()
             data = data.cuda()
-            out, _ = model(data)
+            out = model(data)
             predicted_output = torch.argmax(out, dim=1)
 
             total += labels.shape[0]

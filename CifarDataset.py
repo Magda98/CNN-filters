@@ -18,17 +18,9 @@ class CifarDataset():
         self.num_workers = 0
 
         # batch size
-        self.batch_size = 100
-
-        # k-fold validation (k=10)
-        valid_size = 0.1
-
-        # flag set if passed through all training set
-        self.last = False
-        self.last_temp = False
+        self.batch_size = 10
 
         # * Horizontal flip - for augmentation
-
         transform_train = transforms.Compose([
             transforms.Resize((32, 32)),
             # transforms.RandomHorizontalFlip(),
