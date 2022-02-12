@@ -6,7 +6,7 @@ import torch.nn as nn
 from utils import weights_init, adaptive_leraning_rate, test
 
 
-class trainModel():
+class TrainModel():
     """
     Main class for training a model for Intel Dataset and Cifar-10
     @ dataset - dataset loader object

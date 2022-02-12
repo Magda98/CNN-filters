@@ -3,8 +3,8 @@ import torch
 from torch.functional import Tensor
 from torch.utils.data import dataset
 from cnn import CnnNet
-from intel_data import IntelDataset
-from cifar_data import CifarDataset
+from IntelDataset import IntelDataset
+from CifarDataset import CifarDataset
 from statistics import mean, stdev
 import numpy.typing as npt
 import numpy as np
