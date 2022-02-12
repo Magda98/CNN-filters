@@ -26,7 +26,7 @@ class CnnNetC(nn.Module):
             self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k, padding=padding))
             self.cnn.append(nn.BatchNorm2d(c_out))
             size_out = math.floor((size_out + 2*padding - 1*(k-1) - 1)/1 + 1)
-            if i % 3 == 0 and i >= 0:
+            if i % 4 == 0 and i >= 0:
                 self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0], padding=padding))
                 size_out = math.floor((size_out + 2*padding - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
 
@@ -40,7 +40,7 @@ class CnnNetC(nn.Module):
         out = inp
         for l in self.cnn:
             if isinstance(l, nn.Conv2d):
-                out = torch.tanh(l(out))
+                out = torch.relu(l(out))
             else:
                 out = l(out)
         out = torch.flatten(out, 1)

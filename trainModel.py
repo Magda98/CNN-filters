@@ -3,6 +3,7 @@ import torch
 from cnn import CnnNet
 from cnnCifar import CnnNetC
 import torch.nn as nn
+from pytorch_model_summary import summary
 from utils import weights_init, adaptive_leraning_rate, test
 
 
@@ -22,9 +23,14 @@ class TrainModel():
         if dataset_name == "intel":
             self.cnn_model = CnnNet(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                     in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+
         elif dataset_name == "cifar":
             self.cnn_model = CnnNetC(input_size, len(dataset.classes),  c_kernels=c_kernels, out_channels=out_channels,
                                      in_channels=in_channels, p_kernel=p_kernel, p_stride=p_stride)
+
+        # print model summary
+        print(summary(self.cnn_model, torch.zeros((1, 3, input_size, input_size)), show_input=False))
+
         self.epoch = epoch
 
         # weight initialization
@@ -45,8 +51,8 @@ class TrainModel():
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
-        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        # self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr,  momentum=0.9)
+        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def training(self):
         loss_train = []
