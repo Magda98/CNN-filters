@@ -18,7 +18,7 @@ class CifarDataset():
         self.num_workers = 0
 
         # batch size
-        self.batch_size = 10
+        self.batch_size = 100
 
         # * Horizontal flip - for augmentation
         transform_train = transforms.Compose([

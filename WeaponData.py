@@ -34,7 +34,7 @@ class WeaponData():
         # * Horizontal flip - for augmentation
 
         transform_train = transforms.Compose([
-            transforms.Resize((64, 64)),
+            transforms.Resize((86, 86)),
             # transforms.RandomHorizontalFlip(),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.ColorJitter(0.3, 0.4, 0.4, 0.2),
@@ -43,7 +43,7 @@ class WeaponData():
         ])
 
         transform_test = transforms.Compose([
-            transforms.Resize((64, 64)),
+            transforms.Resize((86, 86)),
             transforms.ToTensor(),
             transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205))
         ])

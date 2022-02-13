@@ -19,16 +19,16 @@ class CnnNetC(nn.Module):
         """
         super().__init__()
 
-        padding = 1
+        padding = 2
         self.cnn = nn.ModuleList()
         size_out = input_size
         for i, (k, c_in, c_out) in enumerate(zip(c_kernels, in_channels, out_channels)):
             self.cnn.append(nn.Conv2d(in_channels=c_in, out_channels=c_out,  kernel_size=k, padding=padding))
-            self.cnn.append(nn.BatchNorm2d(c_out))
+            # self.cnn.append(nn.BatchNorm2d(c_out))
             size_out = math.floor((size_out + 2*padding - 1*(k-1) - 1)/1 + 1)
-            if i % 4 == 0 and i >= 0:
-                self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0], padding=padding))
-                size_out = math.floor((size_out + 2*padding - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
+            if i % 3 == 0 and i >= 0:
+                self.cnn.append(nn.MaxPool2d(kernel_size=p_kernel[0],  stride=p_stride[0], padding=1))
+                size_out = math.floor((size_out + 2*1 - 1*(p_kernel[0]-1) - 1)/p_stride[0] + 1)
 
         self.fc1 = nn.Linear(size_out*size_out * out_channels[-1], 64)
         self.fc2 = nn.Linear(64, 16)
@@ -40,7 +40,7 @@ class CnnNetC(nn.Module):
         out = inp
         for l in self.cnn:
             if isinstance(l, nn.Conv2d):
-                out = torch.relu(l(out))
+                out = torch.tanh(l(out))
             else:
                 out = l(out)
         out = torch.flatten(out, 1)
