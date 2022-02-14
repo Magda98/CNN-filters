@@ -24,13 +24,6 @@ class WeaponData():
         # batch size
         self.batch_size = 100
 
-        # k-fold validation (k=10)
-        valid_size = 0.1
-
-        # flag set if passed through all training set
-        self.last = False
-        self.last_temp = False
-
         # * Horizontal flip - for augmentation
 
         transform_train = transforms.Compose([
@@ -49,7 +42,7 @@ class WeaponData():
         ])
 
         # Load data from folders
-        self.data = datasets.ImageFolder('./datasets/pistol_classification/', transform=transform_train)
+        self.data = datasets.ImageFolder('./datasets/GunDetection/', transform=transform_train)
 
         n_train_c1 = int(0.8 * 9062)
         n_train_c2 = int(0.8 * 795)
@@ -80,7 +73,7 @@ class WeaponData():
                                 num_workers=self.num_workers, sampler=test_sampler)
 
         # classes
-        root = pathlib.Path('./datasets/pistol_classification')
+        root = pathlib.Path('./datasets/GunDetection')
         self.classes = sorted([j.name.split('/')[-1] for j in root.iterdir()])
         print(self.classes)
 

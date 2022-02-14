@@ -119,6 +119,6 @@ def weights_init(m, method):
             elif method == 'xavier_uniform_M_20':
                 xavier_uniform_M(m.weight, gain=1.0, fac=10.)
             elif method == 'xavier_uniform_M_1':
-                self.xavier_uniform_M(m.weight, gain=1.0, fac=0.5)
+                xavier_uniform_M(m.weight, gain=1.0, fac=0.5)
             elif method == 'xavier_normal':
                 torch.nn.init.xavier_normal_(m.weight, gain=1.0)
