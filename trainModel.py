@@ -40,7 +40,7 @@ class TrainModel():
         self.dataset_name = dataset_name
 
         self.criterion = nn.NLLLoss()
-        self.lr = 0.001
+        self.lr = 0.0001
         # self.lr = 0.00001
 
         if torch.cuda.is_available():
