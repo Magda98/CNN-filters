@@ -75,7 +75,6 @@ class TrainModel:
         self.criterion = nn.NLLLoss()
         self.lr = 0.001
         # self.lr = 0.00001
-
         if torch.cuda.is_available():
             self.cnn_model = self.cnn_model.cuda()
             self.cnn_model.cnn = self.cnn_model.cnn.cuda()
@@ -84,10 +83,10 @@ class TrainModel:
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        self.optimizer = torch.optim.SGD(
-            self.cnn_model.parameters(), lr=self.lr, momentum=0.9
-        )
-        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        # self.optimizer = torch.optim.SGD(
+        #     self.cnn_model.parameters(), lr=self.lr, momentum=0.9
+        # )
+        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def training(self):
         loss_train = []
