@@ -39,7 +39,7 @@ class WeaponData:
             [
                 transforms.Resize((86, 86)),
                 transforms.ToTensor(),
-                transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205)),
+                # transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205)),
             ]
         )
 

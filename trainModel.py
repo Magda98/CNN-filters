@@ -29,6 +29,9 @@ class TrainModel:
         apt=0,
         dataset_name="intel",
         epoch=200,
+        padding_flag=True,
+        maxpool_freq=2,
+        activation_relu=True,
     ):
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
@@ -42,6 +45,9 @@ class TrainModel:
                 in_channels=in_channels,
                 p_kernel=p_kernel,
                 p_stride=p_stride,
+                padding_flag=padding_flag,
+                maxpool_freq=maxpool_freq,
+                activation_relu=activation_relu,
             )
 
         elif dataset_name == "cifar":
