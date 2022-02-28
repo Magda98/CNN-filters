@@ -32,6 +32,7 @@ class TrainModel:
         padding_flag=True,
         maxpool_freq=2,
         activation_relu=True,
+        fc_size=4,
     ):
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
@@ -48,6 +49,7 @@ class TrainModel:
                 padding_flag=padding_flag,
                 maxpool_freq=maxpool_freq,
                 activation_relu=activation_relu,
+                fc_size=4,
             )
 
         elif dataset_name == "cifar":

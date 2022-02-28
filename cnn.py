@@ -19,6 +19,7 @@ class CnnNet(nn.Module):
         padding_flag=True,
         maxpool_freq=2,
         activation_relu=True,
+        fc_size=4,
     ):
         """
         CNN class
@@ -36,7 +37,7 @@ class CnnNet(nn.Module):
             if padding_flag:
                 padding = 3 if k == 7 else 2
             else:
-                padding = 1
+                padding = 0
 
             self.cnn.append(
                 nn.Conv2d(
@@ -46,19 +47,25 @@ class CnnNet(nn.Module):
             size_out = math.floor((size_out + 2 * padding - 1 * (k - 1) - 1) / 1 + 1)
             if i % maxpool_freq == 0 and i > 0:
                 self.cnn.append(
-                    nn.MaxPool2d(kernel_size=p_kernel[0], stride=p_stride[0], padding=1)
+                    nn.MaxPool2d(kernel_size=p_kernel[0], stride=p_stride[0], padding=0)
                 )
                 size_out = math.floor(
-                    (size_out + 2 * 1 - 1 * (p_kernel[0] - 1) - 1) / p_stride[0] + 1
+                    (size_out + 2 * 0 - 1 * (p_kernel[0] - 1) - 1) / p_stride[0] + 1
                 )
 
-        self.fc1 = nn.Linear(size_out * size_out * out_channels[-1], 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 16)
-        self.fc4 = nn.Linear(16, output_size)
+        if fc_size == 4:
+            self.fc1 = nn.Linear(size_out * size_out * out_channels[-1], 128)
+            self.fc2 = nn.Linear(128, 64)
+            self.fc3 = nn.Linear(64, 16)
+            self.fc4 = nn.Linear(16, output_size)
+        elif fc_size == 3:
+            self.fc1 = nn.Linear(size_out * size_out * out_channels[-1], 64)
+            self.fc2 = nn.Linear(64, 16)
+            self.fc3 = nn.Linear(16, output_size)
 
         self.activation = torch.nn.ReLU() if activation_relu else torch.nn.Tanh()
-
+        self.fc_size = fc_size
+        
         print("ilość klas: {}".format(output_size))
         print("wielkość po warstawach conv: {}".format(size_out))
 
@@ -71,9 +78,14 @@ class CnnNet(nn.Module):
                 out = l(out)
 
         out = torch.flatten(out, 1)
-        out = F.relu(self.fc1(out))
-        out = F.relu(self.fc2(out))
-        out = F.relu(self.fc3(out))
+        out = self.activation(self.fc1(out))
+        out = self.activation(self.fc2(out))
         m = torch.nn.LogSoftmax(dim=1)
-        out = m(self.fc4(out))
+        
+        if self.fc_size == 4:
+            out = self.activation(self.fc3(out))
+            out = m(self.fc4(out))
+        elif self.fc_size == 3:
+            out = m(self.fc3(out))
+            
         return out
