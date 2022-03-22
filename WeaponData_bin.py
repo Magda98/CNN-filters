@@ -20,22 +20,11 @@ class WeaponData:
         self.num_workers = 0
 
         # batch size
-        self.batch_size = 40
+        self.batch_size = 20
 
         # * Horizontal flip - for augmentation
 
         transform_train = transforms.Compose(
-            [
-                transforms.Resize((100, 100)),
-                transforms.ToTensor(),
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.Normalize(
-                    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-                ),
-            ]
-        )
-
-        transform_test = transforms.Compose(
             [
                 transforms.Resize((224, 224)),
                 transforms.ToTensor(),
@@ -45,23 +34,46 @@ class WeaponData:
             ]
         )
 
+        transform_test = transforms.Compose(
+            [
+                transforms.Resize((100, 100)),
+                transforms.ToTensor(),
+                # transforms.Normalize((0.425, 0.415, 0.405), (0.205, 0.205, 0.205)),
+            ]
+        )
+
         # Load data from folders
         self.data = datasets.ImageFolder(
-            "./datasets/Sohas_weapon/train/", transform=transform_train
+            "./datasets/GunDetection/", transform=transform_train
         )
 
         self.data_test = datasets.ImageFolder(
-            "./datasets/Sohas_weapon/test/", transform=transform_test
+            "./datasets/GunDetection/", transform=transform_test
         )
 
-        num_train = len(self.data)
-        self.indices = list(range(num_train))
+        n_train_c1 = int(0.8 * 9062)
+        n_train_c2 = int(0.8 * 795)
 
         num_test = len(self.data_test)
         self.indices_test = list(range(num_test))
 
-        train_sampler = SubsetRandomSampler(self.indices)
-        test_sampler = SubsetRandomSampler(self.indices_test)
+        num_train = len(self.data)
+        self.indices = list(range(num_train))
+
+        self.c1 = self.indices[:9061]
+        self.c2 = self.indices[9061:]
+
+        self.train_idx = self.c1[:n_train_c1]
+        del self.c1[0:n_train_c1]
+        self.train_idx.extend(self.c2[:n_train_c2])
+        del self.c2[0:n_train_c2]
+
+        self.test_idx = self.c1
+        self.test_idx.extend(self.c2)
+
+        # create samplers
+        train_sampler = SubsetRandomSampler(self.train_idx)
+        test_sampler = SubsetRandomSampler(self.test_idx)
 
         # dataloaders
 
@@ -79,7 +91,7 @@ class WeaponData:
         )
 
         # classes
-        root = pathlib.Path("./datasets/Sohas_weapon/train")
+        root = pathlib.Path("./datasets/GunDetection")
         self.classes = sorted([j.name.split("/")[-1] for j in root.iterdir()])
         print(self.classes)
 

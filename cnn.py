@@ -63,9 +63,8 @@ class CnnNet(nn.Module):
             self.fc2 = nn.Linear(64, 16)
             self.fc3 = nn.Linear(16, output_size)
 
-        self.activation = torch.nn.ReLU() if activation_relu else torch.nn.Tanh()
+        self.activation = F.relu if activation_relu else F.tanh
         self.fc_size = fc_size
-        
         print("ilość klas: {}".format(output_size))
         print("wielkość po warstawach conv: {}".format(size_out))
 
@@ -81,11 +80,11 @@ class CnnNet(nn.Module):
         out = self.activation(self.fc1(out))
         out = self.activation(self.fc2(out))
         m = torch.nn.LogSoftmax(dim=1)
-        
+
         if self.fc_size == 4:
             out = self.activation(self.fc3(out))
             out = m(self.fc4(out))
         elif self.fc_size == 3:
             out = m(self.fc3(out))
-            
+
         return out

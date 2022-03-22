@@ -33,10 +33,10 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "ResNet",
+      "name": "shap",
       "type": "python",
       "request": "launch",
-      "program": "ResNetTest.py",
+      "program": "shap_script.py",
       "console": "integratedTerminal"
     }
   ]
