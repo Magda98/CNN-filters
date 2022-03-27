@@ -1,8 +1,6 @@
-from typing import List
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 from torch.utils.data.sampler import SubsetRandomSampler
-from torch.utils.data import random_split
 from torchvision import datasets
 import torch
 import numpy as np
