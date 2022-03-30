@@ -51,7 +51,6 @@ class TrainModel:
                 activation_relu=activation_relu,
                 fc_size=4,
             )
-
         elif dataset_name == "cifar":
             self.cnn_model = CnnNetC(
                 input_size,
@@ -131,6 +130,6 @@ class TrainModel:
             print("pk: {:.2f} %".format(acc))
             print("Learning rate: {:.10f}".format(self.optimizer.param_groups[0]["lr"]))
             print("Epoch: {}.............".format(e), end=" ")
-            print("Loss: {:.4f}".format(loss_train_temp))
+            print("Loss: {:.4f}".format(loss_train_temp/len(self.dataset.trainloader)))
 
         return (loss_train, loss_test, acc, self.epoch)
