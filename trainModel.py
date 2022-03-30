@@ -131,6 +131,6 @@ class TrainModel:
             print("pk: {:.2f} %".format(acc))
             print("Learning rate: {:.10f}".format(self.optimizer.param_groups[0]["lr"]))
             print("Epoch: {}.............".format(e), end=" ")
-            print("Loss: {:.4f}".format(loss))
+            print("Loss: {:.4f}".format(loss_train_temp))
 
         return (loss_train, loss_test, acc, self.epoch)
