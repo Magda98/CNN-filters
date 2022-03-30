@@ -92,10 +92,10 @@ class TrainModel:
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        # self.optimizer = torch.optim.SGD(
-        #     self.cnn_model.parameters(), lr=self.lr, momentum=0.9
-        # )
-        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        self.optimizer = torch.optim.SGD(
+            self.cnn_model.parameters(), lr=self.lr, momentum=0.9
+        )
+        # self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def training(self):
         loss_train = []
