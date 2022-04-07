@@ -62,7 +62,7 @@ if __name__ == "__main__":
     ax = plt.axes(projection='3d')
     plt.xlabel('ilość filtrów warstwa 1.')
     plt.ylabel('ilość filtrów warstwa 2.')
-    ax.set_zlabel('PK[%]')
+    ax.set_zlabel('ACC[%]')
 
     # plt.xticks(np.arange(1, 101, step=10))
     # plt.yticks(np.arange(1, 41, step=10))
