@@ -1,12 +1,12 @@
-import statistics
-
-from matplotlib import cm
-import numpy as np
-import matplotlib.pyplot as plt
-import itertools
-from matplotlib.ticker import MaxNLocator
-from mpl_toolkits.mplot3d import axes3d
 import scipy.linalg
+from mpl_toolkits.mplot3d import axes3d
+from matplotlib.ticker import MaxNLocator
+import itertools
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib import cm
+import matplotlib
+plt.rcParams['svg.fonttype'] = 'none'
 
 
 def polyfit2d(x, y, z, order=3):
