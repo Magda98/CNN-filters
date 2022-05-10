@@ -63,13 +63,13 @@ class TrainModel:
             )
 
         # print model summary
-        # print(
-        #     summary(
-        #         self.cnn_model,
-        #         torch.zeros((1, 3, input_size, input_size)),
-        #         show_input=False,
-        #     )
-        # )
+        print(
+            summary(
+                self.cnn_model,
+                torch.zeros((1, 3, input_size, input_size)),
+                show_input=False,
+            )
+        )
 
         self.epoch = epoch
 

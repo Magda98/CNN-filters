@@ -94,9 +94,7 @@ def weights_init(m, method):
     with torch.no_grad():
         if isinstance(m, nn.Conv2d):
             # „fan_in” (domyślnie) zachowuje wielkość wariancji wag w przebiegu do przodu
-            if method == 'orthogonal':
-                torch.nn.init.orthogonal_(m.weight)
-            elif method == 'kaiming_uniform':
+            if method == 'kaiming_uniform':
                 torch.nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')
             elif method == 'kaiming_uniform_M_1':
                 kaiming_uniform_M(m.weight, mode='fan_in', nonlinearity='relu', M=0.5)
