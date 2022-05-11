@@ -32,6 +32,7 @@ class TrainModel:
         maxpool_freq=2,
         activation_relu=True,
         fc_size=4,
+        optimizer='SGD'
     ):
         print("class num: {}".format(len(dataset.classes)))
         self.dataset = dataset
@@ -51,7 +52,7 @@ class TrainModel:
                 fc_size=4,
             )
         elif dataset_name == "cifar":
-            self.cnn_model = CnnNetC(
+            self.cnn_model = CnnNet(
                 input_size,
                 len(dataset.classes),
                 c_kernels=c_kernels,
@@ -89,10 +90,10 @@ class TrainModel:
             torch.device("cpu")
             print("GPU not available, CPU used")
 
-        # self.optimizer = torch.optim.SGD(
-        #     self.cnn_model.parameters(), lr=self.lr, momentum=0.9
-        # )
-        self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
+        if(optimizer == 'SGD'):
+            self.optimizer = torch.optim.SGD(self.cnn_model.parameters(), lr=self.lr, momentum=0.9)
+        elif(optimizer == 'AdamW'):
+            self.optimizer = torch.optim.AdamW(self.cnn_model.parameters(), lr=self.lr)
 
     def training(self):
         loss_train = []
