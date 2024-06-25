@@ -54,8 +54,8 @@ class CnnNetC(nn.Module):
 
         self.activation = F.relu if activation_relu else F.tanh
 
-        print("ilość klas: {}".format(output_size))
-        print("wielkość po warstawach conv: {}".format(size_out))
+        print("class count: {}".format(output_size))
+        print("size after conv: {}".format(size_out))
 
     def forward(self, inp: Tensor):  # type:ignore
         out = inp

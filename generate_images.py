@@ -77,7 +77,7 @@ class Model():
                 loss = criterion(out, labels)
                 loss.backward()
                 optimizer.step()
-                print('wyjście sieci dla danego obrazu: {}'.format(dataset.classes[output.detach().cpu().numpy()[0]]))
+                print('output for image: {}'.format(dataset.classes[output.detach().cpu().numpy()[0]]))
                 image = data[0].detach().cpu().numpy()
                 break
             i += 1

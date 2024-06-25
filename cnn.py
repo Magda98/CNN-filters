@@ -65,8 +65,8 @@ class CnnNet(nn.Module):
 
         self.activation = F.relu if activation_relu else F.tanh
         self.fc_size = fc_size
-        print("ilość klas: {}".format(output_size))
-        print("wielkość po warstawach conv: {}".format(size_out))
+        print("class count: {}".format(output_size))
+        print("size after conv: {}".format(size_out))
 
     def forward(self, inp):
         out = inp

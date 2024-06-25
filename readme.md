@@ -40,7 +40,7 @@ Dataset contain 60k images of size 32px x 32px. Dataset has 10 classes:
 }
 ```
 
-## CNN
+## CNN models
 
 Convolutional neural network has fallowing structure for Intel Dataset:
 
@@ -81,7 +81,3 @@ Gradients:
 "SHAP (SHapley Additive exPlanations) is a game theoretic approach to explain the output of any machine learning model. It connects optimal credit allocation with local explanations using the classic Shapley values from game theory and their related extensions"
 
 https://github.com/slundberg/shap
-
-## ToDo
-
-- [ ] SHapley analysis

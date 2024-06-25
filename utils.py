@@ -93,7 +93,7 @@ def weights_init(m, method):
     """
     with torch.no_grad():
         if isinstance(m, nn.Conv2d):
-            # „fan_in” (domyślnie) zachowuje wielkość wariancji wag w przebiegu do przodu
+            # „fan_in” (default) keeps variance value of weights in forward pass
             if method == 'kaiming_uniform':
                 torch.nn.init.kaiming_uniform_(m.weight, mode='fan_in', nonlinearity='relu')
             elif method == 'kaiming_uniform_M_1':
